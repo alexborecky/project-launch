@@ -1,0 +1,76 @@
+/* The board is laid out at 1440 × 900 and scaled to the window (see useFit). */
+.board {
+  height: var(--board-h);
+  padding: var(--gap);
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  transform-origin: 0 0;
+}
+
+.main {
+  flex: 1 1 0;
+  min-height: 0;
+  display: flex;
+  gap: var(--gap);
+}
+
+.side {
+  width: var(--side-col);
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  min-height: 0;
+}
+
+/* Panel slots. Heights from Figma; the checklist and the map take what's left. */
+.side > div { display: flex; flex-direction: column; min-height: 0; }
+.side > div > * { flex: 1 1 0; }
+.grow { flex: 1 1 0; }
+.conditions { height: 187px; flex: none; }
+.status { height: 197px; flex: none; }
+.comms { height: 221px; flex: none; }
+
+.centre {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+}
+
+.deckRow {
+  height: 196px;
+  flex: none;
+  display: flex;
+  gap: var(--gap);
+}
+
+/* ---- small laptops: stack and scroll ---- */
+.compact {
+  height: auto;
+  min-height: 100%;
+}
+
+.compact .main {
+  flex-wrap: wrap;
+  align-content: flex-start;
+}
+
+.compact .centre {
+  order: -1;
+  flex-basis: 100%;
+}
+
+.compact .centre > section:first-child { flex: none; height: min(60vh, 541px); }
+
+.compact .side {
+  flex: 1 1 340px;
+  width: auto;
+}
+
+.compact .grow { flex: none; }
+.compact .grow > * { flex: none; max-height: 70vh; }
+
+.compact .deckRow { height: auto; flex-wrap: wrap; }

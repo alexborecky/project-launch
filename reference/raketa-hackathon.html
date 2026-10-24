@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Project Hack</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tektur:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme: dark;
+  --bg:#000000; --ink:#ffffff; --muted:#808080; --dim:#4a4a4a; --line:rgba(255,255,255,.22); --bracket:#5c5c5c;
+  --orange:#e25319; --orange-deep:#8a3a17; --orange-dark:#2b1007; --green:#2ae219;
+  --steel-1:#7d8798; --steel-2:#c9d0dc; --steel-3:#f7f9fc; --steel-4:#aeb7c6; --steel-5:#6c7587;
+  --carbon-1:#0d1118; --carbon-2:#2a313d; --metal-1:#3a4150; --metal-2:#8b93a3;
+  --tower:#3b3f48; --tower-dark:#24272e; --beacon:#e25319;
+  --flame-1:#fff6d6; --flame-2:#ffc14a; --flame-3:#ff6a1f; --smoke:#c9d2de;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+/* The design is a dark mission screen in both themes, so dark values match light ones. */
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ color-scheme: dark; --bg:#000000; --ink:#ffffff; } }
+:root[data-theme="dark"]{ color-scheme: dark; }
+*,*::before,*::after{box-sizing:inherit}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font-family:"Tektur",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:16px;letter-spacing:.08em;overflow:hidden;font-variant-numeric:tabular-nums}
+button{font:inherit;letter-spacing:inherit;color:inherit}
+button:focus-visible{outline:2px solid var(--orange);outline-offset:3px}
+
+/* background: stars + solar ring */
+#stars{position:fixed;inset:0;width:100%;height:100%;z-index:0}
+.ring{position:fixed;left:34%;top:52%;width:min(70vw,1000px);aspect-ratio:1.9;translate:-50% -50%;z-index:0;pointer-events:none;animation:drift 26s ease-in-out infinite alternate}
+.ring i{position:absolute;inset:0;border-radius:50%}
+.ring .halo{background:radial-gradient(closest-side,rgba(226,83,25,.18),rgba(226,83,25,.07) 55%,transparent)}
+.ring .band{inset:26% 18%;background:radial-gradient(closest-side,rgba(255,140,70,.22),rgba(226,83,25,.08) 60%,transparent);animation:breathe 9s ease-in-out infinite alternate}
+.ring .core{inset:46.5% 46%;background:radial-gradient(closest-side,#ffd9b0,#ff8a3d 45%,rgba(226,83,25,0));filter:blur(.5px);animation:pulse 4.5s ease-in-out infinite alternate}
+@keyframes drift{from{rotate:-34deg;scale:1}to{rotate:-30deg;scale:1.04}}
+@keyframes breathe{from{opacity:.75;scale:1}to{opacity:1;scale:1.06}}
+@keyframes pulse{from{opacity:.8}to{opacity:1;scale:1.25}}
+
+.app{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1fr) 570px;height:100%}
+
+/* left: header + rocket */
+.left{position:relative;min-width:0}
+.header{position:absolute;top:20px;left:24px;z-index:3;width:min(522px,calc(100% - 48px))}
+.title-row{display:flex;align-items:center;gap:32px}
+.title-row h1{margin:0;font-size:32px;font-weight:400;letter-spacing:.08em;white-space:nowrap}
+.timer{--c:var(--bracket);position:relative;padding:8px 10px;font-size:32px;color:var(--orange);white-space:nowrap;
+  background:
+    linear-gradient(var(--c),var(--c)) left top/20px 1px no-repeat, linear-gradient(var(--c),var(--c)) left top/1px 20px no-repeat,
+    linear-gradient(var(--c),var(--c)) right top/20px 1px no-repeat, linear-gradient(var(--c),var(--c)) right top/1px 20px no-repeat,
+    linear-gradient(var(--c),var(--c)) left bottom/20px 1px no-repeat, linear-gradient(var(--c),var(--c)) left bottom/1px 20px no-repeat,
+    linear-gradient(var(--c),var(--c)) right bottom/20px 1px no-repeat, linear-gradient(var(--c),var(--c)) right bottom/1px 20px no-repeat}
+.god{display:none;position:absolute;right:-4px;bottom:-18px;font-size:10px;color:var(--orange)}
+.god.on{display:block}
+.god-reset{margin-left:auto}
+.god-reset[hidden]{display:none}
+.sound{display:flex;align-items:center;gap:19px;margin-top:12px;height:51px}
+.mute{background:none;border:0;padding:0;width:24px;height:24px;cursor:pointer;color:var(--ink);flex:none}
+.mute svg{display:block}
+.bars{flex:1;height:51px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;background:none;border:0;padding:0}
+.bars i{display:block;width:2px;height:2px;background:var(--dim);border-radius:1px;transition:height .12s ease-out}
+
+.stage{position:absolute;inset:150px 0 0 0}
+.stage svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.empty-hint{position:absolute;left:50%;top:46%;transform:translate(-50%,-50%);z-index:2;color:var(--muted);text-align:center;max-width:30ch;font-size:13px;line-height:1.6;transition:opacity .4s;pointer-events:none}
+.empty-hint.hidden{opacity:0}
+.result{position:absolute;left:24px;right:24px;bottom:28px;z-index:3;text-align:center;font-size:14px;line-height:1.5;opacity:0;transition:opacity .4s}
+.result.on{opacity:1}
+.result b{display:block;font-size:20px;font-weight:500;margin-bottom:4px}
+.result.ok{color:var(--green)} .result.bad{color:var(--orange)}
+.countdown{position:fixed;inset:0;z-index:6;display:flex;align-items:center;justify-content:center;font-size:clamp(120px,18vw,260px);color:var(--orange);pointer-events:none;text-shadow:0 0 50px rgba(226,83,25,.6)}
+.countdown span{animation:pop .9s ease-out forwards}
+@keyframes pop{0%{opacity:0;transform:scale(1.7)}25%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(.85)}}
+.flash{position:fixed;inset:0;z-index:5;background:var(--flame-1);opacity:0;pointer-events:none}
+.flash.on{animation:flash .7s ease-out}
+@keyframes flash{0%{opacity:.75}100%{opacity:0}}
+
+.part{opacity:0;transform:translateY(-90px);transition:opacity .5s ease,transform .8s cubic-bezier(.3,1.35,.5,1)}
+.part.on{opacity:1;transform:none}
+#rocket{transition:transform 3.6s cubic-bezier(.55,0,.85,.35)}
+#rocket.shake{animation:shake .1s linear infinite}
+@keyframes shake{0%{translate:0 0}25%{translate:-1.5px .8px}50%{translate:1.5px -.8px}75%{translate:-.8px -.8px}100%{translate:0 0}}
+#flame{opacity:0;transform-origin:400px 600px;transform-box:view-box}
+#flame.on{opacity:1;animation:flicker .08s infinite alternate}
+@keyframes flicker{from{transform:scaleY(.88) scaleX(.97)}to{transform:scaleY(1.1) scaleX(1.03)}}
+.smoke circle{opacity:0;transform-box:fill-box;transform-origin:center}
+.smoke.on circle{animation:puff 3s ease-out forwards}
+@keyframes puff{0%{opacity:.95;transform:scale(.2)}100%{opacity:0;transform:scale(2.8)}}
+#boom circle{opacity:0;transform-box:fill-box;transform-origin:center}
+#boom.on circle{animation:boom 1.3s ease-out forwards}
+@keyframes boom{0%{opacity:1;transform:scale(.1)}55%{opacity:1}100%{opacity:0;transform:scale(3.2)}}
+.beacon{animation:blink 1.6s steps(1) infinite}
+@keyframes blink{50%{opacity:.15}}
+
+/* right: checklist, counters, launch */
+.right{display:flex;flex-direction:column;padding:86px 24px 70px;min-height:0}
+.right h2{margin:0 0 20px;font-size:24px;font-weight:400;letter-spacing:.08em}
+.checklist{border:1px solid var(--line);padding:24px;display:flex;flex-direction:column;gap:13px;overflow-y:auto;min-height:0;flex:0 1 auto;scrollbar-width:thin;scrollbar-color:var(--dim) transparent;background:rgba(0,0,0,.35)}
+.item{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:24px}
+.item .l{display:flex;align-items:center;gap:8px;min-width:0}
+.item .name{font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item.added .name{color:var(--green)}
+.st{display:inline-flex;align-items:center;gap:4px;padding-top:4px;font-size:10px;letter-spacing:.08em;white-space:nowrap;color:var(--muted)}
+.st.prog{color:var(--orange)} .st.ok{color:var(--green)}
+.st .dot{width:4px;height:4px;border-radius:50%;background:var(--orange)}
+.btn{flex:none;font-size:11px;padding:4px;border:1px solid var(--orange);background:transparent;cursor:pointer;white-space:nowrap;line-height:14px}
+.btn:hover{background:rgba(226,83,25,.18)}
+.btn.fill{background:var(--orange);border-color:var(--orange)}
+.btn.fill:hover{background:#f2662b}
+.btn.small{font-size:10px;padding:3px 6px}
+.stripes{flex:none;width:125px;height:18px;border:0;padding:0;cursor:pointer;
+  background:repeating-linear-gradient(-55deg,var(--orange) 0 6px,var(--orange-deep) 6px 9px,transparent 9px 14px);
+  background-size:200% 100%;animation:march 1.4s linear infinite}
+.stripes:hover{filter:brightness(1.25)}
+@keyframes march{to{background-position:-34px 0}}
+.decide{display:flex;gap:6px;flex:none}
+.added-tag{flex:none;background:none;border:0;padding:4px 0 0;cursor:pointer}
+
+.gauges{display:flex;justify-content:space-between;align-items:center;margin-top:40px;flex:none}
+.gauge{width:100px;height:100px;position:relative}
+.gauge svg{display:block;width:100px;height:100px;overflow:visible}
+.gauge .num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:31px;letter-spacing:0}
+.gauge .arc{transition:stroke-dashoffset .8s ease}
+.radar{cursor:crosshair}
+.launch{flex:none;margin-top:40px;height:64px;width:100%;border:0;background:var(--orange);color:var(--ink);font-size:24px;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;transition:background .15s,box-shadow .15s}
+.launch:hover:not(:disabled){box-shadow:0 0 32px rgba(226,83,25,.55)}
+.launch:disabled{background:var(--orange-dark);color:rgba(255,255,255,.18);cursor:not-allowed}
+
+@media (max-width:1100px){
+  body{overflow:auto}
+  .app{grid-template-columns:1fr;height:auto}
+  .left{height:72vh;min-height:520px}
+  .right{padding:24px}
+  .checklist{overflow:visible}
+}
+@media (max-width:560px){
+  .title-row{flex-wrap:wrap;gap:8px}
+  .title-row h1,.timer{font-size:24px}
+  .item .name{font-size:14px}
+  .gauge,.gauge svg{width:72px;height:72px}
+  .gauge .num{font-size:22px}
+}
+@media (prefers-reduced-motion: reduce){
+  .ring,.ring i,.stripes,.beacon,#flame.on,#rocket.shake,.smoke.on circle,.countdown span{animation:none}
+  .part,#rocket,.gauge .arc{transition:none}
+}
+</style>
+</head>
+<body>
+<canvas id="stars" aria-hidden="true"></canvas>
+<div class="ring" aria-hidden="true"><i class="halo"></i><i class="band"></i><i class="core"></i></div>
+
+<div class="app">
+  <section class="left" aria-label="Launch pad">
+    <div class="header">
+      <div class="title-row">
+        <h1>Project Hack</h1>
+        <div class="timer" role="timer" aria-label="Time to launch"><span id="tminus">T-0</span><span class="god" id="god">god mode</span></div>
+        <button class="btn small god-reset" id="godReset" hidden title="Clears all progress for everyone using this screen">Reset</button>
+      </div>
+      <div class="sound">
+        <button class="mute" id="mute" aria-label="Mute"></button>
+        <button class="bars" id="bars" aria-label="Play transmission"></button>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="empty-hint" id="emptyHint">The pad is empty.<br>Finish a topic and add its part to the rocket.</div>
+      <svg viewBox="0 0 800 700" preserveAspectRatio="xMidYMax meet" role="img" aria-labelledby="sceneTitle">
+        <title id="sceneTitle">Rocket on the launch pad</title>
+        <defs>
+          <linearGradient id="hull" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="var(--steel-5)"/><stop offset=".22" stop-color="var(--steel-2)"/><stop offset=".45" stop-color="var(--steel-3)"/><stop offset=".7" stop-color="var(--steel-4)"/><stop offset="1" stop-color="var(--steel-5)"/>
+          </linearGradient>
+          <linearGradient id="carbon" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="var(--carbon-1)"/><stop offset=".45" stop-color="var(--carbon-2)"/><stop offset="1" stop-color="var(--carbon-1)"/>
+          </linearGradient>
+          <linearGradient id="bell" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="var(--metal-1)"/><stop offset=".5" stop-color="var(--metal-2)"/><stop offset="1" stop-color="var(--metal-1)"/>
+          </linearGradient>
+          <linearGradient id="plume" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="var(--flame-1)"/><stop offset=".35" stop-color="var(--flame-2)"/><stop offset="1" stop-color="var(--flame-3)" stop-opacity="0"/>
+          </linearGradient>
+          <linearGradient id="beam" x1="0" y1="1" x2="0" y2="0">
+            <stop offset="0" stop-color="#ffd2b8" stop-opacity=".12"/><stop offset="1" stop-color="#ffd2b8" stop-opacity="0"/>
+          </linearGradient>
+          <linearGradient id="groundFade" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#000" stop-opacity="0"/><stop offset=".3" stop-color="#000"/>
+          </linearGradient>
+          <radialGradient id="glow" cx=".5" cy=".5" r=".5">
+            <stop offset="0" stop-color="var(--flame-2)" stop-opacity=".8"/><stop offset="1" stop-color="var(--flame-3)" stop-opacity="0"/>
+          </radialGradient>
+          <filter id="blur6" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6"/></filter>
+          <filter id="blur14" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="14"/></filter>
+        </defs>
+
+        <rect x="-400" y="630" width="1600" height="120" fill="url(#groundFade)"/>
+        <polygon points="250,646 262,646 390,200 350,200" fill="url(#beam)"/>
+        <polygon points="550,646 538,646 410,200 450,200" fill="url(#beam)"/>
+        <g>
+          <rect x="492" y="150" width="6" height="496" fill="var(--tower)"/>
+          <rect x="534" y="150" width="6" height="496" fill="var(--tower)"/>
+          <g id="truss" stroke="var(--tower-dark)" stroke-width="2"></g>
+          <rect x="486" y="142" width="60" height="8" fill="var(--tower)"/>
+          <rect x="440" y="226" width="54" height="6" fill="var(--tower)"/>
+          <rect x="446" y="420" width="48" height="5" fill="var(--tower)"/>
+          <line x1="516" y1="142" x2="516" y2="114" stroke="var(--metal-1)" stroke-width="2"/>
+          <circle class="beacon" cx="516" cy="112" r="3.5" fill="var(--beacon)"/>
+        </g>
+        <rect x="300" y="616" width="200" height="30" fill="#15171c"/>
+        <rect x="300" y="616" width="200" height="3" fill="var(--metal-1)"/>
+        <rect x="370" y="620" width="60" height="26" fill="#050608"/>
+
+        <g class="smoke" id="smoke" filter="url(#blur6)">
+          <circle cx="330" cy="620" r="40" fill="var(--smoke)"/><circle cx="470" cy="620" r="44" fill="var(--smoke)"/>
+          <circle cx="400" cy="632" r="52" fill="var(--steel-3)"/><circle cx="270" cy="630" r="34" fill="var(--smoke)"/>
+          <circle cx="530" cy="630" r="34" fill="var(--smoke)"/><circle cx="210" cy="638" r="26" fill="var(--smoke)"/>
+          <circle cx="590" cy="638" r="26" fill="var(--smoke)"/>
+        </g>
+
+        <g id="rocket">
+          <g id="flame">
+            <ellipse cx="400" cy="640" rx="90" ry="50" fill="url(#glow)" filter="url(#blur14)"/>
+            <path d="M372 604 Q400 790 428 604 Z" fill="url(#plume)" filter="url(#blur6)"/>
+            <path d="M384 604 Q400 700 416 604 Z" fill="var(--flame-1)"/>
+          </g>
+          <g class="part" data-part="boosterL">
+            <rect x="318" y="384" width="34" height="176" fill="url(#hull)"/>
+            <path d="M318 386 C318 360 328 346 335 338 C342 346 352 360 352 386 Z" fill="url(#hull)"/>
+            <rect x="318" y="470" width="34" height="10" fill="url(#carbon)"/>
+            <path d="M326 560 L344 560 L350 590 L320 590 Z" fill="url(#bell)"/>
+            <line x1="352" y1="420" x2="362" y2="420" stroke="var(--metal-1)" stroke-width="3"/>
+            <line x1="352" y1="540" x2="362" y2="540" stroke="var(--metal-1)" stroke-width="3"/>
+          </g>
+          <g class="part" data-part="boosterR">
+            <rect x="448" y="384" width="34" height="176" fill="url(#hull)"/>
+            <path d="M448 386 C448 360 458 346 465 338 C472 346 482 360 482 386 Z" fill="url(#hull)"/>
+            <rect x="448" y="470" width="34" height="10" fill="url(#carbon)"/>
+            <path d="M456 560 L474 560 L480 590 L450 590 Z" fill="url(#bell)"/>
+            <line x1="438" y1="420" x2="448" y2="420" stroke="var(--metal-1)" stroke-width="3"/>
+            <line x1="438" y1="540" x2="448" y2="540" stroke="var(--metal-1)" stroke-width="3"/>
+          </g>
+          <g class="part" data-part="engine">
+            <rect x="362" y="552" width="76" height="12" fill="url(#carbon)"/>
+            <path d="M372 564 L388 564 L392 604 L368 604 Z" fill="url(#bell)"/>
+            <path d="M392 564 L408 564 L412 606 L388 606 Z" fill="url(#bell)"/>
+            <path d="M412 564 L428 564 L432 604 L408 604 Z" fill="url(#bell)"/>
+          </g>
+          <g class="part" data-part="fins">
+            <path d="M364 512 L366 556 L330 604 L324 600 Z" fill="url(#carbon)"/>
+            <path d="M436 512 L434 556 L470 604 L476 600 Z" fill="url(#carbon)"/>
+            <rect x="356" y="366" width="8" height="18" fill="var(--carbon-2)"/>
+            <rect x="436" y="366" width="8" height="18" fill="var(--carbon-2)"/>
+          </g>
+          <g class="part" data-part="tank">
+            <rect x="362" y="358" width="76" height="196" fill="url(#hull)"/>
+            <line x1="362" y1="420" x2="438" y2="420" stroke="var(--steel-4)" stroke-width="1"/>
+            <line x1="362" y1="500" x2="438" y2="500" stroke="var(--steel-4)" stroke-width="1"/>
+          </g>
+          <g class="part" data-part="shield"><rect x="362" y="336" width="76" height="24" fill="url(#carbon)"/></g>
+          <g class="part" data-part="body">
+            <rect x="362" y="212" width="76" height="126" fill="url(#hull)"/>
+            <line x1="362" y1="270" x2="438" y2="270" stroke="var(--steel-4)" stroke-width="1"/>
+          </g>
+          <g class="part" data-part="paint">
+            <rect x="362" y="524" width="76" height="14" fill="url(#carbon)"/>
+            <rect x="362" y="320" width="76" height="4" fill="var(--orange)"/>
+            <text x="0" y="0" transform="translate(408 498) rotate(-90)" font-family="Tektur, sans-serif" font-weight="600" font-size="30" letter-spacing="10" fill="var(--carbon-2)">SOFA</text>
+          </g>
+          <g class="part" data-part="window">
+            <rect x="362" y="212" width="76" height="12" fill="url(#carbon)"/>
+            <circle cx="378" cy="218" r="2" fill="var(--orange)"/><circle cx="392" cy="218" r="2" fill="var(--orange)"/>
+            <circle cx="406" cy="218" r="2" fill="var(--orange)"/><circle cx="420" cy="218" r="2" fill="var(--orange)"/>
+          </g>
+          <g class="part" data-part="nose">
+            <path d="M362 214 C362 164 384 124 400 98 C416 124 438 164 438 214 Z" fill="url(#hull)"/>
+            <path d="M386 150 L414 150" stroke="var(--steel-4)" stroke-width="1"/>
+          </g>
+          <g class="part" data-part="patch">
+            <circle cx="400" cy="294" r="13" fill="var(--carbon-2)"/>
+            <circle cx="400" cy="294" r="13" fill="none" stroke="var(--orange)" stroke-width="1.5"/>
+            <path d="M400 285 L402.6 291.4 L409 291.4 L404 295.4 L405.8 302 L400 298 L394.2 302 L396 295.4 L391 291.4 L397.4 291.4 Z" fill="#fff"/>
+          </g>
+          <g class="part" data-part="antenna">
+            <line x1="400" y1="100" x2="400" y2="66" stroke="var(--metal-2)" stroke-width="2"/>
+            <line x1="392" y1="78" x2="408" y2="78" stroke="var(--metal-2)" stroke-width="1.5"/>
+            <circle class="beacon" cx="400" cy="64" r="3" fill="var(--beacon)"/>
+          </g>
+        </g>
+
+        <g id="boom" filter="url(#blur6)">
+          <circle cx="400" cy="380" r="70" fill="var(--flame-2)"/><circle cx="365" cy="345" r="48" fill="var(--flame-3)"/>
+          <circle cx="440" cy="405" r="52" fill="var(--orange)"/><circle cx="420" cy="340" r="40" fill="var(--smoke)"/>
+          <circle cx="400" cy="380" r="32" fill="var(--flame-1)"/>
+        </g>
+      </svg>
+    </div>
+    <div class="result" id="result" role="status"></div>
+  </section>
+
+  <section class="right">
+    <h2>Pre-Launch checklist</h2>
+    <div class="checklist" id="list"></div>
+
+    <div class="gauges">
+      <div class="gauge" title="Chance of a successful launch">
+        <svg viewBox="0 0 100 100" aria-hidden="true">
+          <circle cx="50" cy="50" r="48" fill="none" stroke="#3a3a3a" stroke-width="2"/>
+          <circle class="arc" id="arcOdds" cx="50" cy="50" r="48" fill="none" stroke="var(--orange)" stroke-width="3" stroke-dasharray="301.6" stroke-dashoffset="301.6" transform="rotate(-90 50 50)"/>
+        </svg>
+        <div class="num" id="numOdds">0%</div>
+      </div>
+      <div class="gauge" title="Parts added to the rocket">
+        <svg viewBox="0 0 100 100" aria-hidden="true">
+          <circle cx="50" cy="50" r="48" fill="none" stroke="#3a3a3a" stroke-width="2"/>
+          <circle class="arc" id="arcParts" cx="50" cy="50" r="48" fill="none" stroke="var(--orange)" stroke-width="3" stroke-dasharray="301.6" stroke-dashoffset="301.6" transform="rotate(-90 50 50)"/>
+        </svg>
+        <div class="num" id="numParts">0/12</div>
+      </div>
+      <div class="gauge" aria-hidden="true">
+        <svg viewBox="0 0 100 100" id="globe"></svg>
+      </div>
+      <div class="gauge radar" id="radarWrap" title="Click to ping">
+        <canvas id="radar" width="200" height="200" style="width:100px;height:100px;display:block"></canvas>
+      </div>
+    </div>
+
+    <button class="launch" id="launch">Launch Rocket</button>
+  </section>
+</div>
+<div class="flash" id="flash"></div>
+<div class="countdown" id="countdown" aria-live="assertive"></div>
+
+<script>
+// ---------- data ----------
+// w = how much the topic adds to the launch odds (hidden). Headless API (engine) is required to lift off.
+const PARTS = [
+  {id:'engine', topic:'Headless API', track:'crunch', w:0.12},
+  {id:'tank', topic:'Assign cost weights', track:'crunch', w:0.09},
+  {id:'fins', topic:'Přesun sofa balíčků', track:'crunch', w:0.09},
+  {id:'body', topic:'Barevná schémata, koncept', track:'hack', w:0.16},
+  {id:'paint', topic:'Barevná schémata, dev', track:'hack', w:0.16},
+  {id:'window', topic:'Verzování šablony', track:'hack', w:0.09},
+  {id:'nose', topic:'Sofa a 3G na jednom projektu', track:'hack', w:0.09},
+  {id:'boosterL', topic:'Dohledávání produktů', track:'hack', w:0.03, extra:true},
+  {id:'boosterR', topic:'Go+gRPC vrstva', track:'hack', w:0.03, extra:true},
+  {id:'antenna', topic:'Canvas a zkreslení', track:'hack', w:0.03, extra:true},
+  {id:'shield', topic:'Standalone editor bez devenvu', track:'hack', w:0.03, extra:true},
+  {id:'patch', topic:'AI v editoru', track:'hack', w:0.03, extra:true}
+];
+// Launch unlocks Tuesday 27 Oct 2026, 17:00 Prague time (CET, +01:00).
+const LAUNCH_AT = new Date('2026-10-27T17:00:00+01:00').getTime();
+const isGod = () => location.hash === '#godmode';
+const locked = () => !isGod() && Date.now() < LAUNCH_AT;
+const DECISIONS = {kill:'Kill', go:'Continue', backlog:'Backlog'};
+const KEY = 'project-hack-rocket-v2';
+const $ = id => document.getElementById(id);
+const NS = 'http://www.w3.org/2000/svg';
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// state[id] = {s:'progress'|'done'|'added', d?:decision}
+let state = {};
+try { state = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch(e) { state = {}; }
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e) {} };
+let deciding = null, launching = false;
+const isAdded = id => state[id] && state[id].s === 'added';
+
+// ---------- stars (static, occasional twinkle) ----------
+const sc = $('stars'), sx = sc.getContext('2d');
+let stars = [], twinkles = [];
+function seedStars(){
+  const dpr = Math.min(2, devicePixelRatio || 1);
+  sc.width = innerWidth * dpr; sc.height = innerHeight * dpr;
+  sx.setTransform(dpr,0,0,dpr,0,0);
+  let s = 17; const rnd = () => (s = (s * 9301 + 49297) % 233280) / 233280;
+  const n = Math.round(innerWidth * innerHeight / 1800);
+  stars = Array.from({length:n}, () => ({x:rnd()*innerWidth, y:rnd()*innerHeight, r:rnd()*0.7+0.25, a:rnd()*0.55+0.15}));
+}
+function drawStars(now){
+  sx.clearRect(0,0,innerWidth,innerHeight);
+  for (const st of stars) { sx.globalAlpha = st.a; sx.fillStyle = '#fff'; sx.fillRect(st.x, st.y, st.r*2, st.r*2); }
+  twinkles = twinkles.filter(t => now - t.t0 < t.dur);
+  for (const t of twinkles) {
+    const k = Math.sin(Math.PI * (now - t.t0) / t.dur);
+    const st = t.star, r = 1.2 + k * 2.2;
+    sx.globalAlpha = k;
+    const g = sx.createRadialGradient(st.x, st.y, 0, st.x, st.y, r * 3);
+    g.addColorStop(0, 'rgba(255,255,255,1)'); g.addColorStop(1, 'rgba(255,220,190,0)');
+    sx.fillStyle = g; sx.beginPath(); sx.arc(st.x, st.y, r * 3, 0, 7); sx.fill();
+  }
+  sx.globalAlpha = 1;
+}
+seedStars(); addEventListener('resize', () => { seedStars(); drawStars(performance.now()); });
+if (!reduced) setInterval(() => {
+  if (twinkles.length < 3 && stars.length) twinkles.push({star: stars[Math.floor(Math.random()*stars.length)], t0: performance.now(), dur: 1400 + Math.random()*1400});
+}, 900);
+
+// ---------- globe (static) ----------
+(function(){
+  const g = $('globe'); const add = (tag, attrs) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); g.appendChild(e); return e; };
+  add('circle', {cx:50, cy:50, r:48, fill:'#050505', stroke:'rgba(255,255,255,.7)', 'stroke-width':.8});
+  for (let i = 1; i < 6; i++) { const rx = 48 * Math.cos(i * Math.PI / 12); add('ellipse', {cx:50, cy:50, rx, ry:48, fill:'none', stroke:'rgba(255,255,255,.35)', 'stroke-width':.5}); }
+  add('line', {x1:50, y1:2, x2:50, y2:98, stroke:'rgba(255,255,255,.45)', 'stroke-width':.5});
+  for (let i = -5; i <= 5; i++) { const y = 50 + 48 * Math.sin(i * Math.PI / 12); const half = 48 * Math.cos(i * Math.PI / 12); add('line', {x1:50-half, y1:y, x2:50+half, y2:y, stroke:'rgba(255,255,255,.3)', 'stroke-width':.5}); }
+  // rough landmass dots: Africa, Europe, South America outlines
+  const blobs = [[58,34,9,7],[62,52,10,16],[48,30,8,4],[30,58,7,12],[72,30,10,5],[40,44,3,3]];
+  let s = 5; const rnd = () => (s = (s * 9301 + 49297) % 233280) / 233280;
+  blobs.forEach(([cx,cy,rx,ry]) => { for (let i = 0; i < 70; i++) { const a = rnd()*6.283, d = Math.sqrt(rnd()); const x = cx + Math.cos(a)*rx*d, y = cy + Math.sin(a)*ry*d; if ((x-50)**2 + (y-50)**2 < 46*46) add('circle', {cx:x.toFixed(1), cy:y.toFixed(1), r:.45, fill: rnd() < .18 ? 'var(--orange)' : 'rgba(255,214,190,.75)'}); } });
+  add('path', {d:'M88 2 h8 v8 M88 2 v3 M96 10 h-3', fill:'none', stroke:'rgba(255,255,255,.5)', 'stroke-width':.8, 'stroke-dasharray':'2 1.5'});
+  add('circle', {cx:80, cy:2.5, r:1.2, fill:'var(--orange)'});
+})();
+
+// ---------- radar (animated, click to ping) ----------
+const rc = $('radar'), rx = rc.getContext('2d');
+let blips = [{a:-1.9, d:.62, life:1}, {a:.9, d:.4, life:1}, {a:2.6, d:.75, life:1}];
+let sweep = 0, lastT = performance.now();
+function drawRadar(now){
+  const dt = (now - lastT) / 1000; lastT = now;
+  if (!reduced) sweep = (sweep + dt * 1.6) % (Math.PI * 2);
+  const W = 200, c = 100, R = 98;
+  rx.clearRect(0,0,W,W);
+  const bg = rx.createRadialGradient(c,c,0,c,c,R); bg.addColorStop(0,'#2a2a2a'); bg.addColorStop(1,'#0d0d0d');
+  rx.fillStyle = bg; rx.beginPath(); rx.arc(c,c,R,0,7); rx.fill();
+  rx.strokeStyle = 'rgba(255,255,255,.14)'; rx.lineWidth = 1;
+  [.25,.5,.75,1].forEach(k => { rx.beginPath(); rx.arc(c,c,R*k,0,7); rx.stroke(); });
+  rx.beginPath(); rx.moveTo(c-R,c); rx.lineTo(c+R,c); rx.moveTo(c,c-R); rx.lineTo(c,c+R); rx.stroke();
+  // sweep wedge
+  const span = 0.9;
+  for (let i = 0; i < 24; i++) {
+    const a0 = sweep - span * (i + 1) / 24, a1 = sweep - span * i / 24;
+    rx.fillStyle = `rgba(255,255,255,${0.32 * (1 - i / 24)})`;
+    rx.beginPath(); rx.moveTo(c,c); rx.arc(c,c,R,a0,a1); rx.closePath(); rx.fill();
+  }
+  rx.strokeStyle = 'rgba(255,255,255,.8)'; rx.lineWidth = 1.5;
+  rx.beginPath(); rx.moveTo(c,c); rx.lineTo(c + Math.cos(sweep)*R, c + Math.sin(sweep)*R); rx.stroke();
+  // blips light up as the hand passes, then fade
+  blips.forEach(b => {
+    const diff = ((sweep - b.a) % 6.283 + 6.283) % 6.283;
+    if (diff < 0.08) b.life = 1;
+    b.life = Math.max(0.12, b.life - dt * 0.35);
+    const x = c + Math.cos(b.a) * R * b.d, y = c + Math.sin(b.a) * R * b.d;
+    rx.fillStyle = `rgba(226,83,25,${b.life})`;
+    rx.shadowColor = 'rgba(226,83,25,.9)'; rx.shadowBlur = 10 * b.life;
+    rx.beginPath(); rx.arc(x, y, 5, 0, 7); rx.fill(); rx.shadowBlur = 0;
+  });
+}
+$('radarWrap').addEventListener('click', e => {
+  const r = rc.getBoundingClientRect(); const x = (e.clientX - r.left) / r.width * 2 - 1, y = (e.clientY - r.top) / r.height * 2 - 1;
+  const d = Math.hypot(x, y); if (d > 1) return;
+  blips.push({a: Math.atan2(y, x), d, life: 1}); if (blips.length > 9) blips.shift();
+});
+
+// ---------- sound bar + voice ----------
+const BAR_N = 120, BAR_COLORS = ['#e25319','#e25319','#8a3a17','#ffffff','#9a9a9a','#4a4a4a'];
+const barsEl = $('bars');
+const bars = Array.from({length:BAR_N}, () => { const i = document.createElement('i'); barsEl.appendChild(i); return i; });
+let muted = false, speaking = false, speakT0 = 0, speakDur = 1600;
+const ICON_ON = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4.7a.7.7 0 0 0-1.2-.5L6.4 7.6A1.4 1.4 0 0 1 5.4 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.4a1.4 1.4 0 0 1 1 .4l3.4 3.4a.7.7 0 0 0 1.2-.5z"/><path d="M16 9a5 5 0 0 1 0 6"/><path d="M19.4 18.4a9 9 0 0 0 0-12.7"/></svg>';
+const ICON_OFF = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4.7a.7.7 0 0 0-1.2-.5L6.4 7.6A1.4 1.4 0 0 1 5.4 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.4a1.4 1.4 0 0 1 1 .4l3.4 3.4a.7.7 0 0 0 1.2-.5z"/><line x1="22" y1="9" x2="16" y2="15"/><line x1="16" y1="9" x2="22" y2="15"/></svg>';
+try { muted = localStorage.getItem(KEY + ':muted') === '1'; } catch(e) {}
+function paintMute(){ $('mute').innerHTML = muted ? ICON_OFF : ICON_ON; $('mute').setAttribute('aria-label', muted ? 'Unmute' : 'Mute'); }
+paintMute();
+$('mute').addEventListener('click', () => {
+  muted = !muted; paintMute();
+  try { localStorage.setItem(KEY + ':muted', muted ? '1' : '0'); } catch(e) {}
+  if (muted) { try { speechSynthesis.cancel(); } catch(e) {} stopSpeaking(); }
+});
+function transmit(text){
+  if (muted || speaking) return;
+  speaking = true; speakT0 = performance.now(); speakDur = 1600;
+  bars.forEach(b => b.style.background = BAR_COLORS[Math.floor(Math.random()*BAR_COLORS.length)]);
+  try {
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'en-US'; u.rate = 0.85; u.pitch = 0.7;
+    u.onstart = () => { speakT0 = performance.now(); speakDur = 60000; };
+    u.onend = u.onerror = stopSpeaking;
+    speechSynthesis.cancel(); speechSynthesis.speak(u);
+  } catch(e) {}
+}
+function stopSpeaking(){ speaking = false; bars.forEach(b => { b.style.height = '2px'; b.style.background = ''; }); }
+function drawBars(now){
+  if (!speaking) return;
+  const t = now - speakT0;
+  if (t > speakDur) { stopSpeaking(); return; }
+  const env = Math.min(1, t / 150) * (0.55 + 0.45 * Math.abs(Math.sin(t / 110)));
+  for (let i = 0; i < BAR_N; i++) {
+    const shape = 0.35 + 0.65 * Math.abs(Math.sin(i * 0.37 + t / 90));
+    const h = 2 + env * shape * (8 + Math.random() * 41);
+    bars[i].style.height = h.toFixed(1) + 'px';
+  }
+}
+barsEl.addEventListener('click', () => transmit('Hello, World'));
+function scheduleTransmission(){ setTimeout(() => { transmit('Hello, World'); scheduleTransmission(); }, 25000 + Math.random() * 35000); }
+setTimeout(() => { transmit('Hello, World'); scheduleTransmission(); }, 6000);
+
+// ---------- countdown ----------
+const pad = n => String(n).padStart(2, '0');
+function tick(){
+  const left = LAUNCH_AT - Date.now();
+  if (left > 0) {
+    const s = Math.floor(left / 1000);
+    const d = Math.floor(s / 86400), h = Math.floor(s % 86400 / 3600), m = Math.floor(s % 3600 / 60), sec = s % 60;
+    $('tminus').textContent = 'T-' + (d ? d + 'd ' : '') + pad(h) + ':' + pad(m) + ':' + pad(sec);
+  } else $('tminus').textContent = 'T-0 00:00:00';
+  $('god').classList.toggle('on', isGod());
+  $('godReset').hidden = !isGod();
+  const btn = $('launch');
+  btn.disabled = launching || locked();
+  btn.title = locked() ? 'Unlocks Tuesday at 17:00' : '';
+  if (btn.dataset.mode !== 'back' && !launching) btn.textContent = 'Launch Rocket';
+}
+setInterval(tick, 1000);
+addEventListener('hashchange', tick);
+
+// ---------- checklist ----------
+function odds(){
+  if (!isAdded('engine')) return 0;
+  const sum = PARTS.filter(p => isAdded(p.id)).reduce((a, p) => a + p.w, 0);
+  return Math.min(0.97, 0.05 + sum);
+}
+const CHECK = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>';
+let shownOdds = 0, shownParts = 0;
+function render(){
+  const list = $('list'); list.innerHTML = '';
+  PARTS.forEach(p => {
+    const st = state[p.id] || {};
+    const row = document.createElement('div');
+    row.className = 'item' + (st.s === 'added' ? ' added' : '');
+    let left = `<div class="l"><span class="name" title="${p.topic}">${p.topic}</span>`;
+    let right = '';
+    if (!st.s) {
+      left += `<span class="st">Waiting</span>`;
+      right = `<button class="btn" data-act="start" data-id="${p.id}">Start work</button>`;
+    } else if (st.s === 'progress') {
+      left += `<span class="st prog"><span class="dot"></span>In Progress</span>`;
+      right = deciding === p.id
+        ? `<div class="decide"><button class="btn small" data-act="dec" data-dec="kill" data-id="${p.id}">Kill</button><button class="btn small" data-act="dec" data-dec="go" data-id="${p.id}">Continue</button><button class="btn small" data-act="dec" data-dec="backlog" data-id="${p.id}">Backlog</button></div>`
+        : `<button class="stripes" data-act="finish" data-id="${p.id}" title="Click when the topic is finished" aria-label="Mark ${p.topic} as finished"></button>`;
+    } else if (st.s === 'done') {
+      left += `<span class="st ok">${CHECK}Done${st.d ? ', ' + DECISIONS[st.d].toLowerCase() : ''}</span>`;
+      right = `<button class="btn fill" data-act="add" data-id="${p.id}">Add part to Rocket</button>`;
+    } else {
+      right = `<button class="added-tag" data-act="remove" data-id="${p.id}" title="Click to take the part off again"><span class="st ok">${CHECK}Part Added</span></button>`;
+    }
+    row.innerHTML = left + '</div>' + right;
+    list.appendChild(row);
+    document.querySelector(`.part[data-part="${p.id}"]`).classList.toggle('on', st.s === 'added');
+  });
+  const count = PARTS.filter(p => isAdded(p.id)).length;
+  shownOdds = Math.round(odds() * 100); shownParts = count;
+  $('numOdds').textContent = shownOdds + '%';
+  $('numParts').textContent = `${count}/${PARTS.length}`;
+  $('emptyHint').classList.toggle('hidden', count > 0);
+  tick();
+}
+// gauges drift slightly around their true value so the board feels alive
+function drawGauges(now){
+  const j = reduced ? 0 : Math.sin(now / 1300) * 0.012 + Math.sin(now / 470) * 0.006;
+  const o = Math.max(0, Math.min(1, shownOdds / 100 + (shownOdds ? j : 0)));
+  const p = Math.max(0, Math.min(1, shownParts / PARTS.length + (shownParts ? j * .8 : 0)));
+  $('arcOdds').setAttribute('stroke-dashoffset', (301.6 * (1 - o)).toFixed(1));
+  $('arcParts').setAttribute('stroke-dashoffset', (301.6 * (1 - p)).toFixed(1));
+}
+
+$('list').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b || launching) return;
+  const id = b.dataset.id, p = PARTS.find(x => x.id === id);
+  switch (b.dataset.act) {
+    case 'start': state[id] = {s:'progress'}; break;
+    case 'finish': if (p.track === 'crunch') state[id] = {s:'done'}; else { deciding = id; render(); return; } break;
+    case 'dec': state[id] = {s:'done', d:b.dataset.dec}; deciding = null; break;
+    case 'add': state[id] = {...state[id], s:'added'}; break;
+    case 'remove': if (!confirm('Take this part off the rocket?')) return; state[id] = {...state[id], s:'done'}; break;
+  }
+  save(); render();
+});
+
+// ---------- launch ----------
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const rocket = $('rocket'), result = $('result');
+function resetFlight(){
+  rocket.style.transition = 'none'; rocket.style.transform = ''; rocket.style.opacity = '';
+  rocket.classList.remove('shake');
+  ['flame','boom','smoke'].forEach(id => $(id).classList.remove('on'));
+  result.className = 'result'; result.innerHTML = '';
+  void rocket.getBoundingClientRect(); rocket.style.transition = '';
+}
+$('launch').addEventListener('click', async () => {
+  const btn = $('launch');
+  if (btn.dataset.mode === 'back') { btn.dataset.mode = ''; resetFlight(); tick(); return; }
+  if (launching || locked()) return;
+  launching = true; deciding = null; render(); resetFlight();
+  const cd = $('countdown');
+  if (!reduced) for (const n of ['3','2','1']) { cd.innerHTML = `<span>${n}</span>`; await sleep(900); }
+  cd.innerHTML = '';
+  const count = PARTS.filter(p => isAdded(p.id)).length;
+  const extras = PARTS.filter(p => p.extra && isAdded(p.id)).length;
+  const p = odds();
+  // Hard rule: a rocket explodes on ignition unless a majority of the core (non-extra) parts
+  // are on it AND the odds are at least 60%. Above that line the launch is a dice roll.
+  const needed = PARTS.filter(x => !x.extra).length;
+  const core = PARTS.filter(x => !x.extra && isAdded(x.id)).length;
+  const viable = core > needed / 2 && p >= 0.6;
+  if (count === 0) {
+    rocket.classList.add('shake'); await sleep(1400); rocket.classList.remove('shake');
+    result.innerHTML = '<b>The pad is empty</b>Add at least one part first.';
+    result.className = 'result bad on';
+  } else {
+    const success = viable && Math.random() < p;
+    $('flame').classList.add('on'); $('smoke').classList.add('on'); rocket.classList.add('shake');
+    await sleep(800);
+    if (success) {
+      rocket.style.transform = 'translateY(-1400px)';
+      await sleep(3600);
+      const km = 120 + extras * 70 + Math.round(Math.random() * 40);
+      result.innerHTML = `<b>Launch successful</b>Reached ${km} km with ${count} of ${PARTS.length} parts.`;
+      result.className = 'result ok on';
+    } else {
+      const rise = viable ? 80 + count * 26 : 10;
+      const climb = viable ? 1800 : 500;
+      rocket.style.transition = `transform ${climb}ms cubic-bezier(.55,0,.85,.35)`;
+      rocket.style.transform = `translateY(-${rise}px)`;
+      await sleep(climb);
+      const boom = $('boom'); boom.setAttribute('transform', `translate(0,-${rise})`);
+      rocket.style.opacity = '0';
+      if (!reduced) $('flash').classList.add('on');
+      boom.classList.add('on');
+      setTimeout(() => $('flash').classList.remove('on'), 800);
+      await sleep(1300);
+      result.innerHTML = viable
+        ? `<b>Rocket lost</b>It broke apart at ${Math.max(2, Math.round(rise / 9))} km. The odds were ${Math.round(p*100)}%, not this time.`
+        : `<b>Exploded on the pad</b>Not enough of the rocket was ready to survive ignition. It needs ${Math.floor(needed / 2) + 1} of ${needed} core parts and at least 60% odds.`;
+      result.className = 'result bad on';
+    }
+    rocket.classList.remove('shake'); $('flame').classList.remove('on');
+  }
+  launching = false; render();
+  btn.dataset.mode = 'back'; btn.disabled = false; btn.textContent = 'Return to pad';
+});
+
+$('godReset').addEventListener('click', () => {
+  if (!isGod() || launching) return;
+  if (!confirm('Reset everything? All topics go back to Waiting and the rocket is cleared, in god mode and regular mode.')) return;
+  state = {}; deciding = null; save();
+  const btn = $('launch'); btn.dataset.mode = '';
+  resetFlight(); render();
+});
+
+// ---------- tower truss + main loop ----------
+(function(){ const t = $('truss'); for (let y = 152; y < 640; y += 32) [[498,y,534,y+32],[534,y,498,y+32],[498,y,534,y]].forEach(([a,b,c,d]) => { const l = document.createElementNS(NS,'line'); l.setAttribute('x1',a); l.setAttribute('y1',b); l.setAttribute('x2',c); l.setAttribute('y2',d); t.appendChild(l); }); })();
+function loop(now){ drawStars(now); drawRadar(now); drawBars(now); drawGauges(now); requestAnimationFrame(loop); }
+render();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

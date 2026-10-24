@@ -1,0 +1,108 @@
+.deck {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  gap: 18px;
+  padding: 18px 20px;
+  background: var(--c-panel);
+  border: 1px solid var(--c-line);
+  border-radius: var(--radius-panel);
+}
+
+.cell {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.label {
+  margin: 0;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.84px;
+}
+
+.caption {
+  font-size: 9.5px;
+  letter-spacing: 0.76px;
+  color: var(--c-muted);
+}
+
+.gauge {
+  position: relative;
+  width: 104px;
+  height: 104px;
+  flex: none;
+}
+
+.layer { position: absolute; inset: 0; }
+
+.arc {
+  position: absolute;
+  inset: 0;
+  width: 104px;
+  height: 104px;
+  overflow: visible;
+  filter: drop-shadow(0 0 4px rgba(226, 83, 25, 0.6));
+}
+
+.arc circle { transition: stroke-dashoffset 0.8s ease; }
+
+.disc {
+  position: absolute;
+  left: 12px;
+  top: 12px;
+}
+
+.value {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: -0.44px;
+}
+
+.radar {
+  position: relative;
+  width: 104px;
+  height: 104px;
+  flex: none;
+  border-radius: 50%;
+  cursor: crosshair;
+}
+
+.rotor {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+}
+
+.radarBase {
+  position: absolute;
+  inset: 0;
+  width: 104px;
+  height: 104px;
+  opacity: 0.5;
+}
+
+.sweepLine {
+  position: absolute;
+  left: 52.06px;
+  top: 15.24px;
+}
+
+.ring { position: absolute; pointer-events: none; }
+
+.blips {
+  position: absolute;
+  inset: 0;
+  width: 104px;
+  height: 104px;
+  overflow: visible;
+  pointer-events: none;
+}

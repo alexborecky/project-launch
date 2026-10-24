@@ -1,0 +1,35 @@
+/* Design tokens from Figma frame 17:346 ("Main Control Board — HUD").
+   The Figma file has no variables, so these are the raw values it uses. */
+:root {
+  color-scheme: dark;
+
+  /* surfaces */
+  --c-void: #0a0b0c;        /* page, camera, voice channel */
+  --c-panel: #121416;       /* panel background */
+  --c-raised: #1a1d20;      /* chips, active row, buttons */
+  --c-line: #23272b;        /* borders, gauge track */
+
+  /* text */
+  --c-text: #e9e6e2;
+  --c-muted: #7a8086;
+  --c-dim: #454a50;
+  --c-hud: rgba(233, 230, 226, 0.75);
+  --c-hud-line: rgba(233, 230, 226, 0.5);
+
+  /* accent */
+  --c-accent: #e25319;      /* bars, deep orange */
+  --c-accent-soft: #ff8a52; /* labels, values */
+  --c-accent-wash: rgba(226, 83, 25, 0.15);
+  --c-accent-glow: rgba(226, 83, 25, 0.6);
+
+  --font: 'Geist Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  --radius-panel: 10px;
+  --radius-chip: 6px;
+  --radius-small: 4px;
+
+  --gap: 8px;
+  --board-w: 1440px;
+  --board-h: 900px;
+  --side-col: 352px;
+}

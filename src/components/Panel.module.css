@@ -1,0 +1,51 @@
+.panel {
+  background: var(--c-panel);
+  border: 1px solid var(--c-line);
+  border-radius: var(--radius-panel);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px 12px;
+  flex: none;
+}
+
+.title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.78px;
+  white-space: nowrap;
+}
+
+.badge {
+  font-size: 10px;
+  letter-spacing: 0.6px;
+  color: var(--c-accent-soft);
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.kv {
+  height: 28px;
+  padding: 0 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 10.5px;
+  letter-spacing: 0.63px;
+  white-space: pre;
+  flex: none;
+}
+
+.kvLabel { color: var(--c-muted); }
+.kvValue { color: var(--c-text); font-weight: 500; }
+.kvValueAccent { color: var(--c-accent-soft); font-weight: 500; }

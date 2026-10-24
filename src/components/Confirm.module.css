@@ -1,0 +1,53 @@
+.dialog {
+  width: 360px;
+  padding: 18px;
+  background: var(--c-panel);
+  color: var(--c-text);
+  border: 1px solid var(--c-line);
+  border-radius: var(--radius-panel);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+  font-family: var(--font);
+}
+
+.dialog::backdrop { background: rgba(10, 11, 12, 0.7); }
+
+.title {
+  margin: 0 0 10px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.78px;
+  text-transform: uppercase;
+}
+
+.message {
+  font-size: 11px;
+  line-height: 1.6;
+  letter-spacing: 0.3px;
+  color: var(--c-muted);
+}
+
+.actions {
+  margin-top: 18px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.cancel, .ok {
+  padding: 8px 14px;
+  border-radius: var(--radius-small);
+  font-size: 10.5px;
+  letter-spacing: 0.84px;
+  text-transform: uppercase;
+  border: 1px solid var(--c-line);
+  background: var(--c-raised);
+}
+
+.ok {
+  border-color: rgba(226, 83, 25, 0.6);
+  background: var(--c-accent-wash);
+  color: var(--c-accent-soft);
+}
+
+.cancel:hover { border-color: var(--c-muted); }
+.ok:hover { background: rgba(226, 83, 25, 0.25); }
