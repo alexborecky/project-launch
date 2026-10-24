@@ -21,7 +21,8 @@ npm test         # unit tests for the game logic
 - With `npm run dev`, and in the demo, progress is saved only in that browser.
 - After the countdown, the camera view plays a 10-second launch clip from `public/videos/`: `launch-success.mp4` when the rocket reaches orbit, `launch-failed.mp4` for any failure. The result appears when the clip ends. Every screen plays it from the same moment.
 - Radio messages from `public/audio/` play in Communications, one at a time:
-  - When someone starts a topic, its message plays 5–10 seconds later, if it has one (see `AUDIO.targeted` in `src/config.ts`).
+  - Only one sound ever plays at a time. Messages wait their turn, and during a launch (countdown voice, then the clip) the radio stays quiet. Anything triggered meanwhile plays afterwards.
+  - When someone starts a topic, its message plays 2 seconds later, if it has one (see `AUDIO.targeted` in `src/config.ts`).
   - When a part is added, the next `new-part-` message plays in turn: 1, 2, 3, then 1 again.
   - About every 20 minutes (18–22 minutes apart), random chatter from `audio/random/` plays.
   - The launch countdown (5, 4, 3, 2, 1) is timed to `t-minus-countdown.mp3`.

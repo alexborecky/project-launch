@@ -141,7 +141,7 @@ export const LAUNCH_VIDEO = {
 
 /**
  * Radio audio in public/audio/. One file plays at a time; they queue up.
- * - `targeted`: plays 5–10 s after someone starts that topic. Topics without a file stay silent.
+ * - `targeted`: plays 2 s after someone starts that topic. Topics without a file stay silent.
  * - `newPart`: played in turn (1, 2, 3, 1…) each time a part is added to the rocket.
  * - `random`: background chatter, about every 20 minutes.
  * - `countdown`: plays with the launch countdown (see LAUNCH_COUNTDOWN).
@@ -161,7 +161,8 @@ export const AUDIO = {
   // File names must not contain # or ?, or Netlify refuses the deploy (see scripts/check-filenames.mjs).
   random: [1, 2, 3, 4].map((n) => `${AUDIO_DIR}/random/radio-chatter-${n}.mp3`),
   countdown: `${AUDIO_DIR}/targeted/t-minus-countdown.mp3`,
-  targetedDelayMs: [5_000, 10_000],
+  /** Topic messages play exactly 2 s after Start work. */
+  targetedDelayMs: [2_000, 2_000],
   newPartDelayMs: 800,
   // About every 20 minutes (18–22 min apart), so a 20-hour day doesn't get chatty.
   randomGapMs: [18 * 60_000, 22 * 60_000],
@@ -169,12 +170,13 @@ export const AUDIO = {
 
 /**
  * The launch countdown, timed to t-minus-countdown.mp3 ("T-minus five, four, three, two, one, liftoff").
- * `marksMs`: when 5, 4, 3, 2 and 1 appear. `liftoffMs`: when the launch clip starts.
+ * `marksMs`: when 5, 4, 3, 2 and 1 appear. `liftoffMs`: when the launch clip starts, just after the
+ * countdown audio (7.44 s) has finished, so the voice and the clip's own sound never overlap.
  * Measured from the audio's loudness; nudge these if the numbers and the voice drift apart.
  */
 export const LAUNCH_COUNTDOWN = {
   marksMs: [0, 2400, 3600, 4850, 5850],
-  liftoffMs: 6300,
+  liftoffMs: 7500,
 }
 
 export const SYSTEM_STATUS = [

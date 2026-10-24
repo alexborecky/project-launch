@@ -1,4 +1,6 @@
-// The radio: plays one audio file at a time and queues the rest. Respects the Communications speaker toggle.
+// The radio: plays one audio file at a time and queues the rest, so two sounds never overlap.
+// While a launch is on (countdown voice + launch clip), everything else waits until it's over.
+// Respects the Communications speaker toggle.
 import { useSyncExternalStore } from 'react'
 import { isMuted, onMutedChange } from '../hooks/muted'
 
@@ -9,6 +11,8 @@ const emit = () => listeners.forEach((l) => l())
 let current: HTMLAudioElement | null = null
 let currentSrc: string | null = null
 const queue: string[] = []
+/** True during a launch: queued messages wait, nothing new starts. */
+let held = false
 
 function start(src: string, offsetSec = 0) {
   const audio = new Audio(src)
@@ -25,27 +29,37 @@ function start(src: string, offsetSec = 0) {
 function next() {
   current = null
   currentSrc = null
-  const src = queue.shift()
+  const src = held ? undefined : queue.shift()
   if (src && !isMuted()) start(src)
   else emit()
 }
 
-/** Plays after whatever is playing now. Ignored while muted, or when the queue is already full. */
+/** Plays after whatever is playing now (and after a launch). Ignored while muted, or when the queue is already full. */
 export function enqueue(src: string) {
   if (isMuted()) return
-  if (!current) return start(src)
+  if (!current && !held) return start(src)
   if (src === currentSrc || queue.includes(src) || queue.length >= MAX_QUEUE) return
   queue.push(src)
 }
 
-/** Stops everything and plays this right away (the launch countdown, demo buttons). */
-export function playNow(src: string, offsetSec = 0) {
-  stopAll()
+/**
+ * Stops whatever is playing and plays this right away (demo buttons, waveform click).
+ * During a launch it's ignored, unless it's the launch's own countdown (`launch: true`).
+ */
+export function playNow(src: string, offsetSec = 0, opts: { launch?: boolean } = {}) {
+  if (held && !opts.launch) return
+  stopCurrent()
   if (!isMuted()) start(src, offsetSec)
 }
 
-export function stopAll() {
-  queue.length = 0
+/** A launch starts (true) or ends (false). While on, the radio stays quiet; queued messages play afterwards. */
+export function holdForLaunch(on: boolean) {
+  held = on
+  if (on) stopCurrent()
+  else if (!current) next()
+}
+
+function stopCurrent() {
   if (current) {
     current.onended = null
     current.onerror = null
@@ -56,7 +70,13 @@ export function stopAll() {
   emit()
 }
 
+export function stopAll() {
+  queue.length = 0
+  stopCurrent()
+}
+
 export const isPlaying = () => current != null
+export const isHeld = () => held
 
 // Muting stops whatever is playing.
 onMutedChange(() => {

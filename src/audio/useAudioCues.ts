@@ -4,7 +4,8 @@ import { AUDIO, TOPICS } from '../config'
 import type { GameData } from '../game/actions'
 import { statusOf, type TopicStates } from '../game/rules'
 import { store } from '../store/store'
-import { enqueue, isPlaying, pick, playNow } from './player'
+import { phases } from '../game/timeline'
+import { enqueue, holdForLaunch, isHeld, isPlaying, pick, playNow } from './player'
 
 const between = ([min, max]: number[]) => min + Math.random() * (max - min)
 
@@ -23,9 +24,11 @@ function nextNewPart(): string {
 }
 
 /**
- * - A topic moves from Waiting to In Progress → its message plays 5–10 s later (if it has one).
+ * - A topic moves from Waiting to In Progress → its message plays 2 s later (if it has one).
  * - A part is added → the next "new part" message in turn (1, 2, 3, 1…). Many parts at once (demo) → just one.
- * - A launch starts → the countdown plays, unless this screen joined after it began.
+ * - A launch starts → the radio goes quiet until the launch clip ends; the countdown voice plays
+ *   (unless this screen joined late). Messages triggered meanwhile wait and play afterwards.
+ * Only one sound ever plays at a time.
  * - About every 20 minutes (18–22) → random radio chatter, if nothing else is playing.
  * Changes seen when the page first loads don't count, so a refresh stays quiet.
  */
@@ -53,21 +56,30 @@ export function useAudioCues(game: GameData) {
     if (added) timers.current.push(setTimeout(() => enqueue(nextNewPart()), AUDIO.newPartDelayMs))
   }, [game.topics])
 
-  // Launch countdown
-  const launchId = game.launch?.id
-  const launchAt = game.launch?.at
+  // Launch: hold the radio from the countdown until the launch clip has finished
+  const launch = game.launch
   useEffect(() => {
-    if (launchAt == null) return
-    const late = store.serverNow() - launchAt
-    if (late < 1500) playNow(AUDIO.countdown, Math.max(0, late) / 1000)
-  }, [launchId, launchAt])
+    if (!launch) return
+    const elapsed = store.serverNow() - launch.at
+    const remaining = phases(launch).resultAt - elapsed
+    if (remaining <= 0) return // an old launch, already over
+    holdForLaunch(true)
+    if (elapsed < 1500) playNow(AUDIO.countdown, Math.max(0, elapsed) / 1000, { launch: true })
+    const release = setTimeout(() => holdForLaunch(false), remaining)
+    return () => {
+      clearTimeout(release)
+      holdForLaunch(false) // returned to the pad or reset
+    }
+    // Only a new launch (id) matters, not every re-render with the same launch.
+    // oxlint-disable-next-line react/exhaustive-deps
+  }, [launch?.id])
 
   // Random chatter
   useEffect(() => {
     let id: ReturnType<typeof setTimeout>
     const schedule = () => {
       id = setTimeout(() => {
-        if (!isPlaying()) enqueue(pick(AUDIO.random))
+        if (!isPlaying() && !isHeld()) enqueue(pick(AUDIO.random))
         schedule()
       }, between(AUDIO.randomGapMs))
     }

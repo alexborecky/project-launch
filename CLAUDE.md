@@ -47,16 +47,17 @@ Vite + React + TypeScript, plain CSS modules and CSS variables, no UI or CSS fra
   - Flame, smoke and explosion are drawn in layer-canvas units. Climb distance is in rocket heights (`climbFor`).
   - The countdown and result panels sit in the open sky right of the rocket.
 - Radio audio replaced the speech-synthesis "Hello, World" voice, which is fully removed (24 Oct 2026). `AUDIO` in config; `src/audio/player.ts` plays one file at a time, keeps a short queue, respects mute, and skips quietly if the browser blocks sound. `src/audio/useAudioCues.ts` decides when:
-  - A topic moving Waiting → In Progress plays its targeted file after 5–10 s. Mapped topics: engine, tank, body + paint (same colour-scheme file), window, nose, boosterR. The other five have no file yet.
+  - A topic moving Waiting → In Progress plays its targeted file after exactly 2 s (Alex, 24 Oct). Mapped topics: engine, tank, body + paint (same colour-scheme file), window, nose, boosterR. The other five have no file yet.
   - Any new part added plays the next `new-part-N` file in turn (1→2→3→1). The position is remembered per device in localStorage (`project-hack:new-part-index`).
   - A launch start plays `t-minus-countdown.mp3`, but not for screens that join more than 1.5 s late.
   - Random chatter plays about every 20 minutes (18–22 min, `randomGapMs`) if nothing is playing. Alex asked for this on 24 Oct 2026, because the board runs for about 20 hours.
   - Changes seen on page load don't count. Every screen with sound plays the cues, laptops included, if they've clicked once.
-- Countdown is 5→1, timed to the countdown audio: `LAUNCH_COUNTDOWN.marksMs` [0, 2400, 3600, 4850, 5850] and `liftoffMs` 6300 (measured from the audio's loudness, not by ear; adjust if the voice and numbers drift). The clip starts at liftoff.
+- Never two sounds at once (Alex's rule): the player is single-channel with a queue. During a launch, `holdForLaunch` keeps the radio quiet from the countdown until the clip ends. Queued messages play afterwards, random chatter is skipped, and `playNow` (demo buttons, waveform) is ignored except for the countdown itself.
+- Countdown is 5→1, timed to the countdown audio: `LAUNCH_COUNTDOWN.marksMs` [0, 2400, 3600, 4850, 5850] and `liftoffMs` 7500 (just after the 7.44 s countdown audio ends, so it doesn't overlap the clip's sound) (measured from the audio's loudness, not by ear; adjust if the voice and numbers drift). The clip starts at liftoff.
 - Demo toolbar has an Audio row to play every file.
 - Netlify refuses to deploy files with `#` or `?` in their names. The radio-audio deploy failed silently because of this; the chatter files were renamed to `radio-chatter-1..4.mp3`. `scripts/check-filenames.mjs` now fails `npm run build` / `build:netlify` early if a file in `public/` has such a name.
 - Launch clips (`LAUNCH_VIDEO` in config, `src/components/LaunchVideo.tsx`):
-  - After the 6.3 s countdown, the success clip (orbit) or the fail clip (pad or lost) plays in the camera view, 10 s long. The game rules are unchanged; Alex chose to keep them.
+  - After the 7.5 s countdown, the success clip (orbit) or the fail clip (pad or lost) plays in the camera view, 10 s long. The game rules are unchanged; Alex chose to keep them.
   - The timeline phases follow the clip: lift-off at 1.5 s, the fail clip's explosion at 5.2 s, and the result when it ends. The trajectory map uses the same timing.
   - Both clips preload. Each screen seeks to (server now − start), so late joiners and refreshes stay in step.
   - Sound plays unless the Communications speaker is muted (`src/hooks/muted.ts`, shared with the radio audio). If the browser blocks sound, the clip plays muted.
