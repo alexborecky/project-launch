@@ -1,4 +1,4 @@
-// The speaker toggle in Communications: one setting for the voice and the launch clips. Remembered per device.
+// The speaker toggle in Communications: one setting for the radio audio and the launch clips. Remembered per device.
 import { useSyncExternalStore } from 'react'
 
 const MUTE_KEY = 'project-hack:muted'

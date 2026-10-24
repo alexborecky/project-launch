@@ -4,7 +4,7 @@
   color-scheme: dark;
 
   /* surfaces */
-  --c-void: #0a0b0c;        /* page, camera, voice channel */
+  --c-void: #0a0b0c;        /* page, camera, radio channel */
   --c-panel: #121416;       /* panel background */
   --c-raised: #1a1d20;      /* chips, active row, buttons */
   --c-line: #23272b;        /* borders, gauge track */

@@ -46,7 +46,7 @@ Vite + React + TypeScript, plain CSS modules and CSS variables, no UI or CSS fra
   - The photo and its rocket crossfade as one unit, inside a 3:2 scene that covers the viewport.
   - Flame, smoke and explosion are drawn in layer-canvas units. Climb distance is in rocket heights (`climbFor`).
   - The countdown and result panels sit in the open sky right of the rocket.
-- Radio audio replaced the speech-synthesis "Hello, World" (24 Oct 2026). `AUDIO` in config; `src/audio/player.ts` plays one file at a time, keeps a short queue, respects mute, and skips quietly if the browser blocks sound. `src/audio/useAudioCues.ts` decides when:
+- Radio audio replaced the speech-synthesis "Hello, World" voice, which is fully removed (24 Oct 2026). `AUDIO` in config; `src/audio/player.ts` plays one file at a time, keeps a short queue, respects mute, and skips quietly if the browser blocks sound. `src/audio/useAudioCues.ts` decides when:
   - A topic moving Waiting → In Progress plays its targeted file after 5–10 s. Mapped topics: engine, tank, body + paint (same colour-scheme file), window, nose, boosterR. The other five have no file yet.
   - Any new part added plays one random `new-part-N` file.
   - A launch start plays `t-minus-countdown.mp3`, but not for screens that join more than 1.5 s late.
@@ -58,7 +58,7 @@ Vite + React + TypeScript, plain CSS modules and CSS variables, no UI or CSS fra
   - After the 6.3 s countdown, the success clip (orbit) or the fail clip (pad or lost) plays in the camera view, 10 s long. The game rules are unchanged; Alex chose to keep them.
   - The timeline phases follow the clip: lift-off at 1.5 s, the fail clip's explosion at 5.2 s, and the result when it ends. The trajectory map uses the same timing.
   - Both clips preload. Each screen seeks to (server now − start), so late joiners and refreshes stay in step.
-  - Sound plays unless the Communications speaker is muted (`src/hooks/muted.ts`, shared with the voice). If the browser blocks sound, the clip plays muted.
+  - Sound plays unless the Communications speaker is muted (`src/hooks/muted.ts`, shared with the radio audio). If the browser blocks sound, the clip plays muted.
   - With reduced motion, the clip shows its last frame.
   - The clips are night-lit, so they look slightly off against the day and dusk photos. Flagged to Alex; nothing decided yet.
 - `.env` must not contain `VITE_SYNC`. Vite reads `.env` too, so plain `npm run dev` would switch to shared saving. netlify.toml sets it for Netlify builds and `npm run netlify`.

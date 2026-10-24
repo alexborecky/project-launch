@@ -60,12 +60,12 @@ export function Communications({ reducedMotion }: { reducedMotion: boolean }) {
             type="button"
             className={`${s.toggle} ${muted ? s.toggleOff : ''}`}
             aria-pressed={!muted}
-            aria-label={muted ? 'Unmute voice transmissions' : 'Mute voice transmissions'}
+            aria-label={muted ? 'Unmute radio audio' : 'Mute radio audio'}
             onClick={() => setMuted(!muted)}
           >
             <img src={muted ? speakerOff : speakerOn} alt="" width={16} height={16} />
           </button>
-          <button type="button" className={s.wave} aria-label="Play transmission now" onClick={speak} disabled={muted}>
+          <button type="button" className={s.wave} aria-label="Play radio chatter now" onClick={speak} disabled={muted}>
             {BARS.map(([h, color], i) => (
               <span
                 key={i}
