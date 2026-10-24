@@ -55,7 +55,7 @@ export function DemoToolbar({ flight, onFlight }: DemoToolbarProps) {
 
   const setParts = (n: number) => {
     onFlight({ phase: 'idle' })
-    store.setTopics(topicsWithParts(n))
+    void store.dispatch({ type: 'setTopics', topics: topicsWithParts(n) })
   }
 
   const stillKey = JSON.stringify(flight)

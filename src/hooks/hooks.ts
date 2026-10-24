@@ -1,9 +1,13 @@
 import { useEffect, useState, useSyncExternalStore } from 'react'
 import { IS_DEMO } from '../demo/demo'
-import { store, type GameData } from '../store/store'
+import { store, type GameData, type SyncStatus } from '../store/store'
 
 export function useGame(): GameData {
   return useSyncExternalStore(store.subscribe, store.get)
+}
+
+export function useSyncStatus(): SyncStatus {
+  return useSyncExternalStore(store.subscribe, store.status)
 }
 
 /** Current time, updated every `ms`. */

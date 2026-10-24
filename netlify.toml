@@ -1,0 +1,22 @@
+# Netlify settings for the project-sofa-launch site. Netlify reads this file on every deploy.
+
+[build]
+  # The board with shared saving, plus the demo at /demos/
+  command = "npm run build:netlify"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+  # Turns on shared saving in the app (see src/store/store.ts)
+  VITE_SYNC = "1"
+
+[functions]
+  directory = "netlify/functions"
+
+# `npm run netlify` runs the app and the functions together on your Mac
+[dev]
+  # Ports picked to avoid 5173/5174/8888, which other tools on Alex's Mac already use
+  command = "npm run dev -- --port 5180 --strictPort"
+  targetPort = 5180
+  port = 8899
+  framework = "#custom"

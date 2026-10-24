@@ -66,7 +66,8 @@ export const ALTITUDE = {
 }
 
 /** Where files in /public are served from ("/" in dev, "./" in the demo build, so it works from any folder). */
-const PUBLIC = import.meta.env.BASE_URL
+// The cast keeps this file loadable by the Netlify server functions too, where import.meta.env doesn't exist.
+const PUBLIC: string = (import.meta as { env?: { BASE_URL?: string } }).env?.BASE_URL ?? '/'
 
 /** Camera photos are 1536 × 1024 and all share one framing. */
 export const PHOTO_SIZE = { w: 1536, h: 1024 }

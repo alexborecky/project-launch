@@ -10,10 +10,13 @@
     "preview": "vite preview",
     "test": "vitest run",
     "build:demo": "tsc -b && vite build --mode demo --base ./ --outDir demos --emptyOutDir",
-    "preview:demo": "vite preview --outDir demos --port 4174"
+    "preview:demo": "vite preview --outDir demos --port 4174",
+    "build:netlify": "tsc -b && vite build && vite build --mode demo --base ./ --outDir dist/demos",
+    "netlify": "netlify dev"
   },
   "dependencies": {
     "@fontsource/geist-mono": "^5.3.0",
+    "@netlify/blobs": "^11.1.6",
     "react": "^19.3.1",
     "react-dom": "^19.3.1"
   },
@@ -22,6 +25,7 @@
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.2",
+    "netlify-cli": "^27.14.2",
     "oxlint": "^1.88.0",
     "typescript": "~6.0.3",
     "vite": "^8.3.4",

@@ -27,6 +27,22 @@
         "--strictPort"
       ],
       "port": 4174
+    },
+    {
+      "name": "netlify",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "netlify",
+        "dev",
+        "--offline",
+        "--no-open"
+      ],
+      "port": 8899,
+      "autoPort": false,
+      "env": {
+        "BROWSER": "none",
+        "NETLIFY_TELEMETRY_DISABLED": "1"
+      }
     }
   ]
 }

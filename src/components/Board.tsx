@@ -3,8 +3,8 @@ import { TOPICS } from '../config'
 import type { Flight } from '../game/flight'
 import { addedParts, isViable, odds as oddsOf, statusOf } from '../game/rules'
 import { LAUNCH_AT } from '../game/time'
-import { useGame, useGodMode, useNow, useReducedMotion } from '../hooks/hooks'
-import { store } from '../store/store'
+import { useGame, useGodMode, useNow, useReducedMotion, useSyncStatus } from '../hooks/hooks'
+import { useAct } from '../store/useAct'
 import { CameraViewport } from './CameraViewport'
 import { Checklist } from './Checklist'
 import { Communications } from './Communications'
@@ -55,6 +55,8 @@ export function Board({ flight, onLaunch, onReturn }: BoardProps) {
   const godMode = useGodMode()
   const reducedMotion = useReducedMotion()
   const confirm = useConfirm()
+  const act = useAct()
+  const link = useSyncStatus()
 
   const added = addedParts(game.topics)
   const odds = oddsOf(game.topics)
@@ -75,7 +77,7 @@ export function Board({ flight, onLaunch, onReturn }: BoardProps) {
     {
       label: 'Final go / no-go poll',
       state: game.goNoGo ? 'checked' : 'pending',
-      onToggle: godMode ? () => store.setGoNoGo(!game.goNoGo) : undefined,
+      onToggle: godMode ? () => void act({ type: 'goNoGo', value: !game.goNoGo }) : undefined,
     },
     { label: 'Launch', state: launched ? 'checked' : locked ? 'locked' : 'pending' },
   ]
@@ -87,8 +89,7 @@ export function Board({ flight, onLaunch, onReturn }: BoardProps) {
       confirmLabel: 'Reset',
     })
     if (ok) {
-      store.reset()
-      onReturn()
+      await act({ type: 'reset' })
     }
   }
 
@@ -104,10 +105,7 @@ export function Board({ flight, onLaunch, onReturn }: BoardProps) {
         status={status}
         godMode={godMode}
         onReset={reset}
-        onFullReset={() => {
-          store.reset()
-          onReturn()
-        }}
+        onFullReset={() => void act({ type: 'reset' })}
       />
       <main className={s.main}>
         <div className={s.side}>
@@ -123,7 +121,7 @@ export function Board({ flight, onLaunch, onReturn }: BoardProps) {
           <LaunchButton mode={buttonMode} onClick={launched ? onReturn : onLaunch} />
         </div>
         <div className={s.side}>
-          <div className={s.status}><SystemStatus /></div>
+          <div className={s.status}><SystemStatus link={link} /></div>
           <div className={s.grow}><TrajectoryMap flight={flight} reducedMotion={reducedMotion} /></div>
           <div className={s.comms}><Communications reducedMotion={reducedMotion} /></div>
         </div>

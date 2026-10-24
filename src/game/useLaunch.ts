@@ -1,58 +1,56 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { useReducedMotion } from '../hooks/hooks'
+import { useCallback, useEffect, useState } from 'react'
+import { useGame } from '../hooks/hooks'
 import { store } from '../store/store'
+import { useAct } from '../store/useAct'
+import { addedParts } from './rules'
 import type { Flight } from './flight'
-import { rollOutcome } from './rules'
-import { ascentMs } from './trajectory'
+import { flightAt, phases } from './timeline'
 
-const COUNT_MS = 900
-const IGNITION_MS = 800
-const BOOM_MS = 1300
-const EMPTY_SHAKE_MS = 1400
-const EMPTY_MESSAGE_MS = 5000
+const EMPTY_MESSAGE_MS = 6400
 
-/** Runs a launch from countdown to result. The outcome is rolled at the start. */
-export function useLaunch(initial: Flight = { phase: 'idle' }) {
-  const [flight, setFlight] = useState<Flight>(initial)
-  const reducedMotion = useReducedMotion()
-  const run = useRef(0)
+/**
+ * The launch on screen. A launch is a shared record with a start time (see actions.ts), and every screen
+ * works out the same countdown, climb and result from it. Rolled once, on the server or in this browser.
+ */
+export function useLaunch() {
+  const game = useGame()
+  const act = useAct()
+  const [clock, setClock] = useState(() => ({ server: store.serverNow(), perf: performance.now() }))
+  // A flight shown without a saved launch (the empty-pad shake, demo stills). Dropped by the next saved change.
+  const [override, setOverrideState] = useState<{ flight: Flight; version: number } | null>(null)
 
-  useEffect(() => () => void run.current++, [])
+  const launchRecord = game.launch
+  useEffect(() => {
+    if (!launchRecord) return
+    const end = launchRecord.at + phases(launchRecord).resultAt + 200
+    const tick = () => setClock({ server: store.serverNow(), perf: performance.now() })
+    const id = setInterval(() => {
+      tick()
+      if (store.serverNow() > end) clearInterval(id)
+    }, 50)
+    return () => clearInterval(id)
+  }, [launchRecord])
+
+  const live = override && override.version === game.version ? override.flight : null
+  const flight = live ?? flightAt(launchRecord, clock.server, clock.perf)
+
+  const setOverride = useCallback((f: Flight | null) => setOverrideState(f ? { flight: f, version: store.get().version } : null), [])
 
   const launch = useCallback(async () => {
-    const id = ++run.current
-    const wait = (ms: number) => new Promise<boolean>((r) => setTimeout(() => r(run.current === id), ms))
-
-    const outcome = rollOutcome(store.get().topics)
-    if (outcome.kind === 'empty') {
-      setFlight({ phase: 'empty' })
-      if (!(await wait(EMPTY_SHAKE_MS + EMPTY_MESSAGE_MS))) return
-      setFlight({ phase: 'idle' })
+    if (addedParts(store.get().topics).length === 0) {
+      setOverride({ phase: 'empty' })
+      setTimeout(() => setOverrideState((o) => (o?.flight.phase === 'empty' ? null : o)), EMPTY_MESSAGE_MS)
       return
     }
-
-    if (!reducedMotion) {
-      for (const n of [3, 2, 1]) {
-        setFlight({ phase: 'countdown', n, outcome })
-        if (!(await wait(COUNT_MS))) return
-      }
-    }
-    setFlight({ phase: 'ignition', outcome })
-    if (!(await wait(IGNITION_MS))) return
-    setFlight({ phase: 'climb', outcome, startedAt: performance.now() })
-    if (!(await wait(reducedMotion ? 0 : ascentMs(outcome)))) return
-    if (outcome.kind !== 'orbit') {
-      setFlight({ phase: 'boom', outcome })
-      if (!(await wait(BOOM_MS))) return
-    }
-    setFlight({ phase: 'result', outcome })
-  }, [reducedMotion])
+    setOverride(null)
+    await act({ type: 'launch' })
+  }, [act, setOverride])
 
   /** Back to the pad. The parts stay on the rocket. */
-  const reset = useCallback(() => {
-    run.current++
-    setFlight({ phase: 'idle' })
-  }, [])
+  const returnToPad = useCallback(async () => {
+    setOverride(null)
+    if (store.get().launch) await act({ type: 'return' })
+  }, [act, setOverride])
 
-  return { flight, setFlight, launch, reset }
+  return { flight, setOverride, launch, returnToPad }
 }

@@ -16,13 +16,42 @@ npm test         # unit tests for the game logic
 ## Using the board
 
 - Click a topic in the checklist to open it and see its actions: Start work → Mark done (hack topics choose Kill / Continue / Backlog) → Add part to rocket. It stays open while you click through the steps. Click it again, or anywhere else, to close it. A part can be removed again, which asks you to confirm first.
-- Progress is saved in this browser (localStorage).
+- On the Netlify site, progress is shared: every screen and laptop sees the same board within about 3 seconds. The first change you make on a device asks for the **team code**. Resetting, the go / no-go poll, launching and Return to pad ask for the **admin code**. Codes are remembered on that device. Anyone with the link can watch without a code.
+- System Status shows **SYNCED** when the screen is connected, or **OFFLINE** with "LINK DOWN". Offline, the board keeps showing the last known progress, and changes wait until the connection is back.
+- With `npm run dev`, and in the demo, progress is saved only in that browser.
 - Press the speaker button to mute the "Hello, World" transmissions. Click the waveform to play one right away.
 - Click the radar to add a contact.
 
+## Shared saving on Netlify
+
+The Netlify site **project-sofa-launch** keeps the board in Netlify Blobs, Netlify's built-in storage. Two small server functions in `netlify/functions/` read it and change it:
+
+- `GET /api/state` returns the current board. Screens check it every 3 seconds, or every 20 seconds while the tab is in the background.
+- `POST /api/action` applies one step, using the same game rules as the app (`src/game/actions.ts`).
+
+Each step is checked against the rules on the server. A save only goes through if nobody else saved in the meantime; otherwise the server retries on top of the newer version. That way two people clicking at once never wipe each other's changes. The launch outcome is rolled once on the server, so every screen shows the same flight and result.
+
+### Setting up the site (one time)
+
+1. In Netlify, choose **Add new site → Import an existing project → GitHub**, and pick `alexborecky/project-launch`. Name the site `project-sofa-launch`.
+2. Leave the build settings as Netlify shows them. They come from `netlify.toml`: build command `npm run build:netlify`, publish folder `dist`, functions in `netlify/functions`.
+3. Under **Site configuration → Environment variables**, add `TEAM_CODE` and `ADMIN_CODE` with values you choose. Mark them as secret. Then trigger a new deploy so the functions pick them up.
+4. Open the site. System Status should say **SYNCED**. The board is at `/`, and the demo is at `/demos/`.
+
+Blobs needs no setup. Use one address on the big screen: the site address or your own domain.
+
+### Testing shared saving on your Mac
+
+```bash
+cp .env.example .env   # local test codes: team-test / admin-test
+npm run netlify        # http://localhost:8899
+```
+
+Open the address in two windows to see them sync. One limitation of Netlify's local test server: it can't spot two saves landing at the exact same moment, so there the last one wins. The real Netlify service catches it (see `netlify/lib/save.mts` and its tests).
+
 ## Complete reset
 
-Double-click the **MISSION ID** chip in the top bar. A small popover asks you to confirm. "Reset everything" sets every topic back to Waiting, clears the rocket and returns any launch to the pad. It works in every mode, not just god mode.
+Double-click the **MISSION ID** chip in the top bar. A small popover asks you to confirm. "Reset everything" sets every topic back to Waiting, clears the rocket and returns any launch to the pad. It works in every mode, not just god mode. On the Netlify site it asks for the admin code.
 
 ## God mode
 

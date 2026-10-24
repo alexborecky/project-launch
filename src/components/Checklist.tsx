@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
 import { TOPICS, type PartId, type Topic } from '../config'
-import { addedParts, nextTopicState, type Decision, type TopicAction, type TopicState } from '../game/rules'
+import { addedParts, type Decision, type TopicAction, type TopicState } from '../game/rules'
 import { useGame } from '../hooks/hooks'
-import { store } from '../store/store'
+import { useAct } from '../store/useAct'
 import { useConfirm } from './Confirm'
 import { Panel } from './Panel'
 import s from './Checklist.module.css'
@@ -64,6 +64,7 @@ function TaskRow({ index, topic, state, open, disabled, onToggle }: TaskRowProps
   const itemRef = useRef<HTMLLIElement>(null)
   const rowRef = useRef<HTMLButtonElement>(null)
   const confirm = useConfirm()
+  const save = useAct()
 
   // Clicking anywhere outside this item closes it. Clicks in the confirm dialog don't count.
   useEffect(() => {
@@ -88,8 +89,7 @@ function TaskRow({ index, topic, state, open, disabled, onToggle }: TaskRowProps
       })
       if (!ok) return
     }
-    const next = nextTopicState(topic, state, action)
-    if (next) store.setTopic(topic.part, next)
+    await save({ type: 'topic', part: topic.part, step: action })
   }
 
   const onKeyDown = (e: KeyboardEvent) => {

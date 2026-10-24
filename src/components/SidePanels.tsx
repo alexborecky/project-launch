@@ -1,5 +1,6 @@
 import { getConditions } from '../ambient/conditions'
 import { SYSTEM_STATUS } from '../config'
+import type { SyncStatus } from '../store/store'
 import { KvRow, Panel } from './Panel'
 
 export function LaunchConditions({ now, drift }: { now: Date; drift: boolean }) {
@@ -15,11 +16,19 @@ export function LaunchConditions({ now, drift }: { now: Date; drift: boolean }) 
   )
 }
 
-export function SystemStatus() {
+const LINK: Record<SyncStatus, string> = {
+  local: '256-BIT ENCRYPTED',
+  connecting: 'CONNECTING…',
+  synced: 'SYNCED',
+  offline: 'OFFLINE',
+}
+
+/** The LINK row shows whether this screen is in sync with the shared board. */
+export function SystemStatus({ link }: { link: SyncStatus }) {
   return (
-    <Panel title="SYSTEM STATUS" badge="ALL GREEN">
+    <Panel title="SYSTEM STATUS" badge={link === 'offline' ? 'LINK DOWN' : 'ALL GREEN'}>
       {SYSTEM_STATUS.map(([label, value]) => (
-        <KvRow key={label} label={label} value={value} accent />
+        <KvRow key={label} label={label} value={label === 'LINK' ? LINK[link] : value} accent />
       ))}
     </Panel>
   )

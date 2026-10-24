@@ -39,7 +39,7 @@ Vite + React + TypeScript, plain CSS modules and CSS variables, no UI or CSS fra
   - The countdown and result panels sit in the open sky right of the rocket.
 - Camera slots: day 07–16, dusk 16–18, night 18–07. The dawn slot was removed, as Alex asked.
 - Flight state is kept in memory only. A reload returns to the pad, but the parts stay.
-- Shared state recommendation (slice 3): a tiny hosted key-value store (Cloudflare Worker + KV or Durable Object) behind the `GameStore` interface. Jira and one-screen-only were rejected for now.
+- Shared state uses Netlify Blobs and Functions. Hosting is Netlify, site name `project-sofa-launch`. The earlier Cloudflare idea was dropped once Netlify was chosen.
 
 ## Slices
 1. Setup, full layout, game logic, local state, launch sequence (`src/game/useLaunch.ts`). Done. The launch visuals (countdown, result panels and so on) are placeholders Alex accepted for now. Alex is designing replacements, so keep them easy to swap. Review them with the demo toolbar (Launch row).
@@ -49,7 +49,21 @@ Vite + React + TypeScript, plain CSS modules and CSS variables, no UI or CSS fra
    - A successful flight lasts 7 s on the map, so the orbit result now appears about 3 s after the rocket leaves the camera.
    - Map progress runs on a timer, not animation frames, so it keeps going in a background tab.
    - The camera's pitch marker tilts up during the climb.
-3. Shared state, only after the approach is agreed.
+3. Shared state on Netlify. Done:
+   - All changes are `Action`s applied by `applyAction` (`src/game/actions.ts`, pure). The browser uses it for local saving, and `netlify/functions/action.mts` uses it for the shared save.
+   - `src/store/store.ts` has `createLocalStore` (demo, `npm run dev`) and `createSharedStore` (Netlify builds, `VITE_SYNC=1` from netlify.toml).
+     - The shared store polls `/api/state?since=<version>` every 3 s (20 s while hidden). The server answers 204 when nothing changed.
+     - Topic steps show instantly (pending) until the server answers.
+     - It caches the last confirmed state in localStorage and tracks the server clock offset.
+   - Saving (`netlify/lib/save.mts`): read with etag, apply, then `setJSON` with `onlyIfMatch`, retrying up to 5 times.
+     - Netlify's local sandbox sends no etags, so locally it falls back to a plain write plus an in-process queue. Truly parallel local writes can still lose one. Production is protected (confirmed in Netlify's docs).
+   - Codes: `TEAM_CODE` and `ADMIN_CODE` env vars are compared against the `x-team-code` header. The team code covers topic steps. The admin code covers reset, go / no-go, launch, return and setTopics. Reading is open.
+     - `useAct` (`src/store/useAct.ts`) shows the code prompt and retries, and reports no-connection and conflict errors in a dialog.
+     - The code is saved in localStorage (`project-hack:code`).
+   - Launch: the server rolls once and stores `{ id, at, outcome }`. Every screen derives the same flight from it with `flightAt` (`src/game/timeline.ts`) using the server clock. A launch is saved, so a refresh keeps it until Return to pad.
+   - `ConfirmProvider` wraps the whole app in `main.tsx`. It provides confirm, alert and prompt dialogs.
+   - Local Netlify test: `cp .env.example .env && npm run netlify`, then open http://localhost:8899. Ports 5180 and 8899 were chosen because Docker on Alex's Mac uses 8888 and 5174.
+   - `public/videos/` (launch-success/failed mp4) is Alex's work in progress and isn't committed yet.
 
 ## Demo build
 - `npm run build:demo` builds into `demos/`. It uses `--mode demo --base ./`, so it works from any folder. Public asset paths in `config.ts` use `import.meta.env.BASE_URL` for that reason: never hard-code `/camera/...`.

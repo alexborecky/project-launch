@@ -51,3 +51,27 @@
 
 .cancel:hover { border-color: var(--c-muted); }
 .ok:hover { background: rgba(226, 83, 25, 0.25); }
+
+.field {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 9.5px;
+  letter-spacing: 0.76px;
+  color: var(--c-muted);
+  text-transform: uppercase;
+}
+
+.input {
+  padding: 9px 10px;
+  background: var(--c-void);
+  border: 1px solid var(--c-line);
+  border-radius: var(--radius-small);
+  color: var(--c-text);
+  font: inherit;
+  font-size: 13px;
+  letter-spacing: 1px;
+}
+
+.input:focus-visible { outline: 2px solid var(--c-accent-soft); outline-offset: 0; }
