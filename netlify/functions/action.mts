@@ -1,12 +1,18 @@
 // POST /api/action: apply one step (see src/game/actions.ts) to the shared game.
 import type { Action } from '../../src/game/actions.ts'
 import { applyAndSave } from '../lib/save.mts'
-import { gameStore, json, roleFor } from '../lib/shared.mts'
+import { gameStore, json, missingCodes, roleFor } from '../lib/shared.mts'
 
 export default async (req: Request) => {
   const role = roleFor(req)
   if (role === 'misconfigured') {
-    return json({ error: 'The server has no codes yet. Set TEAM_CODE and ADMIN_CODE in Netlify.' }, 500)
+    const missing = missingCodes().join(' and ')
+    return json(
+      {
+        error: `The server can't see ${missing}. In Netlify, check the name is spelled exactly like that, its scopes include Functions, and it applies to Production. Then trigger a new deploy.`,
+      },
+      500,
+    )
   }
 
   let action: Action
