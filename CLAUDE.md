@@ -40,7 +40,7 @@ Vite + React + TypeScript, plain CSS modules and CSS variables, no UI or CSS fra
 - Shared state recommendation (slice 3): a tiny hosted key-value store (Cloudflare Worker + KV or Durable Object) behind the `GameStore` interface. Jira and one-screen-only were rejected for now.
 
 ## Slices
-1. Setup, full layout, game logic, local state, launch sequence (`src/game/useLaunch.ts`). Done. The launch visuals (countdown, result panels and so on) are placeholders Alex accepted for now. Alex is designing replacements, so keep them easy to swap. Review them with `?preview`.
+1. Setup, full layout, game logic, local state, launch sequence (`src/game/useLaunch.ts`). Done. The launch visuals (countdown, result panels and so on) are placeholders Alex accepted for now. Alex is designing replacements, so keep them easy to swap. Review them with the demo toolbar (Launch row).
 2. Camera crossfade by time of day, trajectory marker and ALT/V during launch. Done:
    - All slot images stay loaded. The new one fades in on top over 6 s, then the old one drops away (no dark dip). `?camera=<slot>` forces a slot.
    - The map milestones stand for altitudes: pad 0, stage 1 at 10 km, max-Q at 25 km, stage 2 at 70 km, and orbit at the outcome's altitude. The marker follows a smooth curve through them. Typical failures (12–44 km) stop between stage 1 and stage 2, and the map shows SIGNAL LOST there.
@@ -48,6 +48,13 @@ Vite + React + TypeScript, plain CSS modules and CSS variables, no UI or CSS fra
    - Map progress runs on a timer, not animation frames, so it keeps going in a background tab.
    - The camera's pitch marker tilts up during the climb.
 3. Shared state, only after the approach is agreed.
+
+## Demo build
+- `npm run build:demo` builds into `demos/`. It uses `--mode demo --base ./`, so it works from any folder. Public asset paths in `config.ts` use `import.meta.env.BASE_URL` for that reason: never hard-code `/camera/...`.
+- `IS_DEMO` (`src/demo/demo.ts`) is true in the demo build or with `?demo` in dev.
+- In the demo: the DEMO toolbar is shown (`src/demo/DemoToolbar.tsx`), god mode is always on, and the store uses its own localStorage key (`project-hack:demo`).
+- The toolbar's Parts buttons write real (demo) store data, so the checklist, gauges and launch roll all agree.
+- The old `?preview` and `?demo=N` review links were replaced by this toolbar.
 
 ## Checks before handing back
 `npm run build`, `npm test`, `npm run lint`, and a look in the browser at 1440 × 900.

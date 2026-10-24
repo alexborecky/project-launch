@@ -65,6 +65,9 @@ export const ALTITUDE = {
   pad: (random: number) => 0.005 + random * 0.01,
 }
 
+/** Where files in /public are served from ("/" in dev, "./" in the demo build, so it works from any folder). */
+const PUBLIC = import.meta.env.BASE_URL
+
 /** Camera photos are 1536 × 1024 and all share one framing. */
 export const PHOTO_SIZE = { w: 1536, h: 1024 }
 
@@ -73,7 +76,7 @@ export const PHOTO_SIZE = { w: 1536, h: 1024 }
  * Adding a part to the rocket shows the next layer, whichever topic it came from.
  */
 export const ROCKET_LAYERS = {
-  base: '/rocket-48-construction-layers',
+  base: `${PUBLIC}rocket-48-construction-layers`,
   canvas: { w: 256, h: 1536 },
   /** Where the engine nozzles end inside the layer canvas (the flame starts here). */
   nozzle: { x: 128, y: 1487 },
@@ -102,21 +105,21 @@ export const CAMERA_SLOTS = [
   {
     id: 'day',
     from: 7,
-    image: '/camera/launchpad-day.png',
+    image: `${PUBLIC}camera/launchpad-day.png`,
     rocket: 'day',
     placement: { left: 550.4, top: 69.9, width: 110.6, height: 754.2 },
   },
   {
     id: 'dusk',
     from: 16,
-    image: '/camera/launchpad-dusk.png',
+    image: `${PUBLIC}camera/launchpad-dusk.png`,
     rocket: 'dusk',
     placement: { left: 550.4, top: 69.9, width: 110.6, height: 754.2 },
   },
   {
     id: 'night',
     from: 18,
-    image: '/camera/launchpad-night.png',
+    image: `${PUBLIC}camera/launchpad-night.png`,
     rocket: 'night', // 'black-night' is the alternative near-black set
     placement: { left: 552.4, top: 102, width: 106.5, height: 720.4 },
   },

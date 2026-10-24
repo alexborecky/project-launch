@@ -1,16 +1,16 @@
 import { Board } from './components/Board'
 import { ConfirmProvider } from './components/Confirm'
-import { PreviewSwitcher, initialPreviewFlight, isPreview } from './components/Preview'
+import { IS_DEMO } from './demo/demo'
+import { DemoToolbar } from './demo/DemoToolbar'
 import { useLaunch } from './game/useLaunch'
 
 export default function App() {
-  const preview = isPreview()
-  const { flight, setFlight, launch, reset } = useLaunch(preview ? initialPreviewFlight() : undefined)
+  const { flight, setFlight, launch, reset } = useLaunch()
 
   return (
     <ConfirmProvider>
       <Board flight={flight} onLaunch={launch} onReturn={reset} />
-      {preview && <PreviewSwitcher current={flight} onPick={setFlight} />}
+      {IS_DEMO && <DemoToolbar flight={flight} onFlight={setFlight} />}
     </ConfirmProvider>
   )
 }

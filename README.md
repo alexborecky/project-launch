@@ -28,11 +28,24 @@ Add `#godmode` to the URL, for example `http://localhost:5173/#godmode`.
 - A **GOD MODE** marker and a **Reset** button appear in the top bar. Reset asks you to confirm, then sets every topic back to Waiting and clears the rocket. God mode and normal mode share the same data, so a reset clears both.
 - The "Final go / no-go poll" step in Launch Sequence becomes clickable.
 
-## Design review links
+## Demo version
 
-- `?preview` adds a bar for stepping through the launch states. `?preview=orbit` opens on one state (`empty`, `countdown`, `ignition`, `climb`, `boom`, `pad`, `lost`, `orbit`).
-- `?demo` shows a nearly complete rocket without touching saved data. `?demo=12` shows a finished one, `?demo=3` three parts.
-- `?camera=night` (or `day`, `dusk`) forces a time of day, so you can check photos and rocket lighting without waiting for the clock.
+The demo is the same app with a floating **DEMO** toolbar. You can drag it by its handle or hide it. It has three rows:
+
+- **Parts:** 0–12 builds the rocket instantly. Each number marks that many topics, in checklist order, as Part Added.
+- **Time:** Clock follows Prague time, or pick Day, Dusk or Night.
+- **Launch:** still frames of each launch state (countdown, ignition, climb, explosion and each result). The real Launch button works too.
+
+In the demo, the launch is always unlocked and god mode is on. It saves its own data, separate from the real board, so playing with it never changes the hackathon state.
+
+```bash
+npm run build:demo     # builds the demo into demos/
+npm run preview:demo   # serves it at http://localhost:4174
+```
+
+`demos/` is a plain static site with relative paths, so it can be hosted from any folder. It needs a web server: opening `index.html` straight from the disk won't work, because browsers block the app's code that way. During development, `npm run dev` and then http://localhost:5173/?demo shows the same toolbar.
+
+`?camera=night` (or `day`, `dusk`) still forces a time of day in any version.
 
 ## Where things live
 

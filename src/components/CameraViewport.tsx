@@ -2,6 +2,7 @@ import { CAMERA_SLOTS, PHOTO_SIZE, TOPICS, VIABILITY } from '../config'
 import { climbFor, modeLabel, resultText, type Flight } from '../game/flight'
 import { cameraSlotForHour, formatClock, utcOffsetLabel, wallClock } from '../game/time'
 import { Rocket } from '../rocket/Rocket'
+import { useForcedSlot } from '../demo/demo'
 import camDot from '../assets/figma/cam-dot.svg'
 import zoomDot from '../assets/figma/zoom-dot.svg'
 import s from './CameraViewport.module.css'
@@ -14,8 +15,6 @@ const PITCH = ['120', '60', '0', '-60', '-120']
 
 const CORE_TOTAL = TOPICS.filter((t) => t.type === 'core').length
 
-/** `?camera=dusk` forces a camera slot, for checking images without waiting for the clock. */
-const FORCED_SLOT = CAMERA_SLOTS.find((c) => c.id === new URLSearchParams(location.search).get('camera'))
 
 interface CameraViewportProps {
   now: Date
@@ -27,7 +26,8 @@ interface CameraViewportProps {
 const pct = (v: number, of: number) => `${(v / of) * 100}%`
 
 export function CameraViewport({ now, flight, layers }: CameraViewportProps) {
-  const slot = FORCED_SLOT ?? cameraSlotForHour(wallClock(now).hour)
+  const forced = useForcedSlot() // demo toolbar or ?camera=
+  const slot = CAMERA_SLOTS.find((c) => c.id === forced) ?? cameraSlotForHour(wallClock(now).hour)
   const outcome = 'outcome' in flight ? flight.outcome : null
   const climb = outcome ? climbFor(outcome) : { rise: 0, ms: 0 }
   const climbing = flight.phase === 'climb' || flight.phase === 'boom' || flight.phase === 'result'

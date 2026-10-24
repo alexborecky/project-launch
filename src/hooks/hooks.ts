@@ -1,17 +1,9 @@
 import { useEffect, useState, useSyncExternalStore } from 'react'
-import { TOPICS } from '../config'
+import { IS_DEMO } from '../demo/demo'
 import { store, type GameData } from '../store/store'
 
-/** `?demo` (design review only) shows a nearly complete rocket without touching saved data; `?demo=5` shows 5 parts. */
-const demoParam = new URLSearchParams(location.search).get('demo')
-const DEMO: GameData | null =
-  demoParam != null
-    ? { topics: Object.fromEntries(TOPICS.slice(0, Number(demoParam) || 11).map((t) => [t.part, { status: 'added' as const }])), goNoGo: true }
-    : null
-
 export function useGame(): GameData {
-  const data = useSyncExternalStore(store.subscribe, store.get)
-  return DEMO ?? data
+  return useSyncExternalStore(store.subscribe, store.get)
 }
 
 /** Current time, updated every `ms`. */
@@ -47,7 +39,8 @@ function useHash(): string {
   )
 }
 
-export const useGodMode = () => useHash() === '#godmode'
+/** God mode: `#godmode` in the URL, and always on in the demo. */
+export const useGodMode = () => useHash() === '#godmode' || IS_DEMO
 
 /** Calls `fn` on every animation frame with the time in ms. */
 export function useFrame(fn: (t: number, dt: number) => void, active = true) {

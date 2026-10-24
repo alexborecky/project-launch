@@ -1,6 +1,7 @@
 // The one place game data is read and written. Today it's localStorage;
 // a shared backend can replace `createLocalStore` without touching components.
 import type { PartId } from '../config'
+import { IS_DEMO } from '../demo/demo'
 import type { TopicState, TopicStates } from '../game/rules'
 
 export interface GameData {
@@ -13,6 +14,8 @@ export interface GameStore {
   get(): GameData
   setTopic(part: PartId, state: TopicState): void
   setGoNoGo(value: boolean): void
+  /** Replace all topic states at once (demo toolbar). */
+  setTopics(topics: TopicStates): void
   /** Every topic back to Waiting, rocket cleared. */
   reset(): void
   subscribe(listener: () => void): () => void
@@ -57,6 +60,7 @@ export function createLocalStore(key = 'project-hack:v1'): GameStore {
     get: () => data,
     setTopic: (part, state) => write({ ...data, topics: { ...data.topics, [part]: state } }),
     setGoNoGo: (value) => write({ ...data, goNoGo: value }),
+    setTopics: (topics) => write({ ...data, topics }),
     reset: () => write(EMPTY),
     subscribe(listener) {
       listeners.add(listener)
@@ -65,4 +69,5 @@ export function createLocalStore(key = 'project-hack:v1'): GameStore {
   }
 }
 
-export const store = createLocalStore()
+// The demo keeps its own saved data, so it never touches the real board in the same browser.
+export const store = createLocalStore(IS_DEMO ? 'project-hack:demo' : 'project-hack:v1')
