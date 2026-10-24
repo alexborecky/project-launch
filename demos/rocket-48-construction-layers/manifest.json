@@ -1,0 +1,95 @@
+{
+  "canvas": {
+    "width": 256,
+    "height": 1536
+  },
+  "themes": {
+    "day": {
+      "source": "rocket-day.png",
+      "layers": [
+        "01-primary-truss.png",
+        "02-propellant-tanks.png",
+        "03-upper-stage-tanks.png",
+        "04-feed-lines-and-cables.png",
+        "05-avionics-and-payload-bay.png",
+        "06-thrust-frame-and-finishing-hardware.png",
+        "07-engine-cluster.png",
+        "08-aft-skirt.png",
+        "09-lower-booster-shell.png",
+        "10-main-booster-shell.png",
+        "11-upper-stage-and-interstage.png",
+        "12-fairing-and-final-surface.png"
+      ],
+      "max_final_channel_difference": 10
+    },
+    "dusk": {
+      "source": "rocket-dusk.png",
+      "layers": [
+        "01-primary-truss.png",
+        "02-propellant-tanks.png",
+        "03-upper-stage-tanks.png",
+        "04-feed-lines-and-cables.png",
+        "05-avionics-and-payload-bay.png",
+        "06-thrust-frame-and-finishing-hardware.png",
+        "07-engine-cluster.png",
+        "08-aft-skirt.png",
+        "09-lower-booster-shell.png",
+        "10-main-booster-shell.png",
+        "11-upper-stage-and-interstage.png",
+        "12-fairing-and-final-surface.png"
+      ],
+      "max_final_channel_difference": 10
+    },
+    "night": {
+      "source": "rocket-night.png",
+      "layers": [
+        "01-primary-truss.png",
+        "02-propellant-tanks.png",
+        "03-upper-stage-tanks.png",
+        "04-feed-lines-and-cables.png",
+        "05-avionics-and-payload-bay.png",
+        "06-thrust-frame-and-finishing-hardware.png",
+        "07-engine-cluster.png",
+        "08-aft-skirt.png",
+        "09-lower-booster-shell.png",
+        "10-main-booster-shell.png",
+        "11-upper-stage-and-interstage.png",
+        "12-fairing-and-final-surface.png"
+      ],
+      "max_final_channel_difference": 10
+    },
+    "black-night": {
+      "source": "rocket-black-night.png",
+      "layers": [
+        "01-primary-truss.png",
+        "02-propellant-tanks.png",
+        "03-upper-stage-tanks.png",
+        "04-feed-lines-and-cables.png",
+        "05-avionics-and-payload-bay.png",
+        "06-thrust-frame-and-finishing-hardware.png",
+        "07-engine-cluster.png",
+        "08-aft-skirt.png",
+        "09-lower-booster-shell.png",
+        "10-main-booster-shell.png",
+        "11-upper-stage-and-interstage.png",
+        "12-fairing-and-final-surface.png"
+      ],
+      "max_final_channel_difference": 9
+    }
+  },
+  "layer_names": [
+    "01-primary-truss",
+    "02-propellant-tanks",
+    "03-upper-stage-tanks",
+    "04-feed-lines-and-cables",
+    "05-avionics-and-payload-bay",
+    "06-thrust-frame-and-finishing-hardware",
+    "07-engine-cluster",
+    "08-aft-skirt",
+    "09-lower-booster-shell",
+    "10-main-booster-shell",
+    "11-upper-stage-and-interstage",
+    "12-fairing-and-final-surface"
+  ],
+  "stack_rule": "Place all 12 transparent PNGs at x=0,y=0 and alpha-composite in numeric order."
+}
