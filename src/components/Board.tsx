@@ -99,7 +99,16 @@ export function Board({ flight, onLaunch, onReturn }: BoardProps) {
       className={`${s.board} ${fit.compact ? s.compact : ''}`}
       style={fit.compact ? undefined : { width: fit.width, transform: `scale(${fit.scale})` }}
     >
-      <TopBar now={now} status={status} godMode={godMode} onReset={reset} />
+      <TopBar
+        now={now}
+        status={status}
+        godMode={godMode}
+        onReset={reset}
+        onFullReset={() => {
+          store.reset()
+          onReturn()
+        }}
+      />
       <main className={s.main}>
         <div className={s.side}>
           <div className={s.grow}><Checklist locked={inFlight} /></div>

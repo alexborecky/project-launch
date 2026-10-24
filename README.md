@@ -20,6 +20,10 @@ npm test         # unit tests for the game logic
 - Press the speaker button to mute the "Hello, World" transmissions. Click the waveform to play one right away.
 - Click the radar to add a contact.
 
+## Complete reset
+
+Double-click the **MISSION ID** chip in the top bar. A small popover asks you to confirm. "Reset everything" sets every topic back to Waiting, clears the rocket and returns any launch to the pad. It works in every mode, not just god mode.
+
 ## God mode
 
 Add `#godmode` to the URL, for example `http://localhost:5173/#godmode`.

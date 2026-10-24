@@ -80,7 +80,7 @@
 
 .progress .status, .done .status { color: var(--c-accent-soft); }
 .added .label { color: var(--c-accent-soft); }
-.added .status { color: var(--c-accent); }
+.added .status { color: var(--c-go); }
 
 /* ---- accordion ---- */
 

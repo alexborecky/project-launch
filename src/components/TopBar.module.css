@@ -96,3 +96,82 @@
   height: 18px;
   margin: -6px;
 }
+
+/* ---- Mission ID: double-click for a complete reset ---- */
+
+.missionWrap { position: relative; }
+
+.mission { cursor: default; user-select: none; }
+
+.popover {
+  position: absolute;
+  z-index: 40;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 280px;
+  padding: 14px;
+  background: var(--c-raised);
+  border: 1px solid var(--c-line);
+  border-left: 2px solid var(--c-accent);
+  border-radius: var(--radius-chip);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+  animation: pop-in 0.14s ease-out;
+}
+
+/* little arrow pointing at the chip */
+.popover::before {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: 28px;
+  width: 8px;
+  height: 8px;
+  background: var(--c-raised);
+  border-left: 1px solid var(--c-line);
+  border-top: 1px solid var(--c-line);
+  rotate: 45deg;
+}
+
+@keyframes pop-in { from { opacity: 0; transform: translateY(-4px); } }
+
+.popTitle {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.84px;
+  color: var(--c-accent-soft);
+}
+
+.popText {
+  margin-top: 6px;
+  font-size: 10.5px;
+  line-height: 1.55;
+  letter-spacing: 0.3px;
+  color: var(--c-muted);
+  white-space: normal;
+}
+
+.popActions {
+  margin-top: 12px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.popCancel, .popReset {
+  padding: 7px 12px;
+  border-radius: var(--radius-small);
+  font-size: 10.5px;
+  letter-spacing: 0.63px;
+  border: 1px solid var(--c-line);
+  background: var(--c-panel);
+}
+
+.popCancel:hover { border-color: var(--c-muted); }
+
+.popReset {
+  border-color: rgba(226, 83, 25, 0.6);
+  background: var(--c-accent-wash);
+  color: var(--c-accent-soft);
+}
+
+.popReset:hover { background: rgba(226, 83, 25, 0.25); }

@@ -22,6 +22,9 @@
   --c-accent-wash: rgba(226, 83, 25, 0.15);
   --c-accent-glow: rgba(226, 83, 25, 0.6);
 
+  /* status */
+  --c-go: #2ae219;          /* Part Added */
+
   --font: 'Geist Mono', ui-monospace, 'SF Mono', Menlo, monospace;
 
   --radius-panel: 10px;
