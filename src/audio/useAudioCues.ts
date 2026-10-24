@@ -8,9 +8,23 @@ import { enqueue, isPlaying, pick, playNow } from './player'
 
 const between = ([min, max]: number[]) => min + Math.random() * (max - min)
 
+const NEW_PART_KEY = 'project-hack:new-part-index'
+
+/** new-part-1, then 2, then 3, then 1 again… Remembered on this device so a refresh carries on. */
+function nextNewPart(): string {
+  let i = 0
+  try {
+    i = Number(localStorage.getItem(NEW_PART_KEY)) || 0
+    localStorage.setItem(NEW_PART_KEY, String((i + 1) % AUDIO.newPart.length))
+  } catch {
+    // storage blocked: always the first one
+  }
+  return AUDIO.newPart[i % AUDIO.newPart.length]
+}
+
 /**
  * - A topic moves from Waiting to In Progress → its message plays 5–10 s later (if it has one).
- * - A part is added → one of the "new part" messages plays. Many parts at once (demo, reset) → just one.
+ * - A part is added → the next "new part" message in turn (1, 2, 3, 1…). Many parts at once (demo) → just one.
  * - A launch starts → the countdown plays, unless this screen joined after it began.
  * - Every 30–90 s → random radio chatter, if nothing else is playing.
  * Changes seen when the page first loads don't count, so a refresh stays quiet.
@@ -36,7 +50,7 @@ export function useAudioCues(game: GameData) {
     }
 
     const added = TOPICS.some((t) => statusOf(before, t.part) !== 'added' && statusOf(now, t.part) === 'added')
-    if (added) timers.current.push(setTimeout(() => enqueue(pick(AUDIO.newPart)), AUDIO.newPartDelayMs))
+    if (added) timers.current.push(setTimeout(() => enqueue(nextNewPart()), AUDIO.newPartDelayMs))
   }, [game.topics])
 
   // Launch countdown

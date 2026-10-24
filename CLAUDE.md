@@ -48,7 +48,7 @@ Vite + React + TypeScript, plain CSS modules and CSS variables, no UI or CSS fra
   - The countdown and result panels sit in the open sky right of the rocket.
 - Radio audio replaced the speech-synthesis "Hello, World" voice, which is fully removed (24 Oct 2026). `AUDIO` in config; `src/audio/player.ts` plays one file at a time, keeps a short queue, respects mute, and skips quietly if the browser blocks sound. `src/audio/useAudioCues.ts` decides when:
   - A topic moving Waiting → In Progress plays its targeted file after 5–10 s. Mapped topics: engine, tank, body + paint (same colour-scheme file), window, nose, boosterR. The other five have no file yet.
-  - Any new part added plays one random `new-part-N` file.
+  - Any new part added plays the next `new-part-N` file in turn (1→2→3→1). The position is remembered per device in localStorage (`project-hack:new-part-index`).
   - A launch start plays `t-minus-countdown.mp3`, but not for screens that join more than 1.5 s late.
   - Random chatter plays every 30–90 s if nothing is playing.
   - Changes seen on page load don't count. Every screen with sound plays the cues, laptops included, if they've clicked once.

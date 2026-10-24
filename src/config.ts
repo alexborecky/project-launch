@@ -142,7 +142,7 @@ export const LAUNCH_VIDEO = {
 /**
  * Radio audio in public/audio/. One file plays at a time; they queue up.
  * - `targeted`: plays 5–10 s after someone starts that topic. Topics without a file stay silent.
- * - `newPart`: one of these plays when a part is added to the rocket.
+ * - `newPart`: played in turn (1, 2, 3, 1…) each time a part is added to the rocket.
  * - `random`: background chatter at random moments.
  * - `countdown`: plays with the launch countdown (see LAUNCH_COUNTDOWN).
  */
