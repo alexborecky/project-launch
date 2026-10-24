@@ -38,7 +38,7 @@ export function TopBar({ now, status, godMode, onReset, onFullReset }: TopBarPro
         <MissionChip onReset={onFullReset} />
         <div className={s.chip} role="timer" aria-label="Time to launch">
           <span className={s.chipLabel}>T-MINUS</span>
-          <span className={`${s.chipValue} ${s.accent}`}>{formatCountdown(LAUNCH_AT - now.getTime())}</span>
+          <span className={`${s.chipValue} ${s.accent} ${s.countdown}`}>{formatCountdown(LAUNCH_AT - now.getTime())}</span>
         </div>
         <div className={s.chip} role="status">
           <span className={s.chipLabel}>STATUS</span>

@@ -94,6 +94,14 @@
 
 .accent { color: var(--c-accent-soft); }
 
+/* Orbitron's digits differ in width, so the ticking countdown gets a fixed width and never shifts the
+   chips. 104px fits the widest case, "00d 00:00:00" (measured ~101px; 0 is the widest digit). */
+.countdown {
+  display: inline-block;
+  width: 104px;
+  white-space: nowrap;
+}
+
 .dot {
   width: 18px;
   height: 18px;
