@@ -1,6 +1,6 @@
 // Where the rocket is on the Trajectory Map during a launch.
 // Pure functions: progress 0..1 in, altitude / speed / map position out.
-import { climbFor } from './flight'
+import { LAUNCH_VIDEO } from '../config'
 import type { Outcome } from './rules'
 
 export interface Point {
@@ -22,7 +22,10 @@ export const WAYPOINTS: { id: string; at: Point; km: number }[] = [
 
 /** How long the climb lasts on the map, in ms. Orbit keeps going after the rocket has left the camera. */
 export function ascentMs(outcome: Outcome): number {
-  return outcome.kind === 'orbit' ? 7000 : climbFor(outcome).ms
+  // Matches the launch clips: success climbs until the clip ends, a failure until the explosion.
+  return outcome.kind === 'orbit'
+    ? LAUNCH_VIDEO.durationMs - LAUNCH_VIDEO.liftoffAtMs
+    : LAUNCH_VIDEO.boomAtMs - LAUNCH_VIDEO.liftoffAtMs
 }
 
 /** Final altitude (km) the marker climbs to for an outcome. */

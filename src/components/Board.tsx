@@ -3,6 +3,7 @@ import { TOPICS } from '../config'
 import type { Flight } from '../game/flight'
 import { addedParts, isViable, odds as oddsOf, statusOf } from '../game/rules'
 import { LAUNCH_AT } from '../game/time'
+import { VIDEO_AT } from '../game/timeline'
 import { useGame, useGodMode, useNow, useReducedMotion, useSyncStatus } from '../hooks/hooks'
 import { useAct } from '../store/useAct'
 import { CameraViewport } from './CameraViewport'
@@ -113,7 +114,13 @@ export function Board({ flight, onLaunch, onReturn }: BoardProps) {
           <div className={s.conditions}><LaunchConditions now={now} drift={!reducedMotion} /></div>
         </div>
         <div className={s.centre}>
-          <CameraViewport now={now} flight={flight} layers={added.length} />
+          <CameraViewport
+            now={now}
+            flight={flight}
+            layers={added.length}
+            videoStart={game.launch && flight.phase !== 'idle' ? game.launch.at + VIDEO_AT : null}
+            reducedMotion={reducedMotion}
+          />
           <div className={s.deckRow}>
             <ControlDeck odds={odds} parts={added.length} total={TOPICS.length} reducedMotion={reducedMotion} />
             <LaunchSequence steps={steps} />

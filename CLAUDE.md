@@ -37,6 +37,15 @@ Vite + React + TypeScript, plain CSS modules and CSS variables, no UI or CSS fra
   - The photo and its rocket crossfade as one unit, inside a 3:2 scene that covers the viewport.
   - Flame, smoke and explosion are drawn in layer-canvas units. Climb distance is in rocket heights (`climbFor`).
   - The countdown and result panels sit in the open sky right of the rocket.
+- Launch clips (`LAUNCH_VIDEO` in config, `src/components/LaunchVideo.tsx`):
+  - After the 2.7 s countdown, the success clip (orbit) or the fail clip (pad or lost) plays in the camera view, 10 s long. The game rules are unchanged; Alex chose to keep them.
+  - The timeline phases follow the clip: lift-off at 1.5 s, the fail clip's explosion at 5.2 s, and the result when it ends. The trajectory map uses the same timing.
+  - Both clips preload. Each screen seeks to (server now − start), so late joiners and refreshes stay in step.
+  - Sound plays unless the Communications speaker is muted (`src/hooks/muted.ts`, shared with the voice). If the browser blocks sound, the clip plays muted.
+  - With reduced motion, the clip shows its last frame.
+  - The clips are night-lit, so they look slightly off against the day and dusk photos. Flagged to Alex; nothing decided yet.
+- `.env` must not contain `VITE_SYNC`. Vite reads `.env` too, so plain `npm run dev` would switch to shared saving. netlify.toml sets it for Netlify builds and `npm run netlify`.
+- Launch Conditions has 8 px of extra bottom padding; its slot is 195 px.
 - Camera slots: day 07–16, dusk 16–18, night 18–07. The dawn slot was removed, as Alex asked.
 - Flight state is kept in memory only. A reload returns to the pad, but the parts stay.
 - Shared state uses Netlify Blobs and Functions. Hosting is Netlify, site name `project-sofa-launch`. The earlier Cloudflare idea was dropped once Netlify was chosen.

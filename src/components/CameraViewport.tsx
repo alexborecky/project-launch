@@ -1,8 +1,9 @@
-import { CAMERA_SLOTS, PHOTO_SIZE, TOPICS, VIABILITY } from '../config'
+import { CAMERA_SLOTS, LAUNCH_VIDEO, PHOTO_SIZE, TOPICS, VIABILITY } from '../config'
 import { climbFor, modeLabel, resultText, type Flight } from '../game/flight'
 import { cameraSlotForHour, formatClock, utcOffsetLabel, wallClock } from '../game/time'
 import { Rocket } from '../rocket/Rocket'
 import { useForcedSlot } from '../demo/demo'
+import { LaunchVideo } from './LaunchVideo'
 import camDot from '../assets/figma/cam-dot.svg'
 import zoomDot from '../assets/figma/zoom-dot.svg'
 import s from './CameraViewport.module.css'
@@ -21,11 +22,17 @@ interface CameraViewportProps {
   flight: Flight
   /** Parts on the rocket; each one shows the next construction layer. */
   layers: number
+  /** Server time the launch clip started, or null for still frames (demo toolbar). */
+  videoStart: number | null
+  reducedMotion: boolean
 }
+
+/** Where in the clip a still frame sits, for the demo toolbar's launch stills. */
+const STILL_AT: Partial<Record<Flight['phase'], number>> = { ignition: 800, climb: 3500, boom: 6500, result: LAUNCH_VIDEO.durationMs }
 
 const pct = (v: number, of: number) => `${(v / of) * 100}%`
 
-export function CameraViewport({ now, flight, layers }: CameraViewportProps) {
+export function CameraViewport({ now, flight, layers, videoStart, reducedMotion }: CameraViewportProps) {
   const forced = useForcedSlot() // demo toolbar or ?camera=
   const slot = CAMERA_SLOTS.find((c) => c.id === forced) ?? cameraSlotForHour(wallClock(now).hour)
   const outcome = 'outcome' in flight ? flight.outcome : null
@@ -40,6 +47,7 @@ export function CameraViewport({ now, flight, layers }: CameraViewportProps) {
         ? resultText(flight.outcome, TOPICS.length, VIABILITY.minCoreParts, CORE_TOTAL, VIABILITY.minOdds * 100)
         : null
   const success = flight.phase === 'result' && flight.outcome.kind === 'orbit'
+  const showClip = outcome != null && outcome.kind !== 'empty' && ['ignition', 'climb', 'boom', 'result'].includes(flight.phase)
 
 
   return (
@@ -71,8 +79,19 @@ export function CameraViewport({ now, flight, layers }: CameraViewportProps) {
         ))}
       </div>
 
+      {/* After the countdown the matching launch clip takes over the camera view. */}
+      {(['success', 'fail'] as const).map((clip) => (
+        <LaunchVideo
+          key={clip}
+          src={LAUNCH_VIDEO[clip]}
+          active={showClip && (clip === 'success') === (outcome?.kind === 'orbit')}
+          startedAt={videoStart}
+          stillAt={STILL_AT[flight.phase] ?? 0}
+          reducedMotion={reducedMotion}
+        />
+      ))}
+
       <div className={s.vignette} aria-hidden="true" />
-      {flight.phase === 'boom' && outcome?.kind !== 'orbit' && <div className={s.flash} aria-hidden="true" />}
 
       <div className={s.camChip}>
         <img src={camDot} alt="" width={6} height={6} />

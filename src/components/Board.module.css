@@ -28,7 +28,8 @@
 .side > div { display: flex; flex-direction: column; min-height: 0; }
 .side > div > * { flex: 1 1 0; }
 .grow { flex: 1 1 0; }
-.conditions { height: 187px; flex: none; }
+.conditions { height: 195px; flex: none; } /* 187 in Figma + 8px bottom padding */
+.conditions > section { padding-bottom: 8px; }
 .status { height: 197px; flex: none; }
 .comms { height: 221px; flex: none; }
 

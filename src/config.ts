@@ -126,6 +126,19 @@ export const CAMERA_SLOTS = [
   },
 ] as const
 
+/**
+ * Launch clips, played in the camera view after the countdown. Both are 10 s, 1920 × 1080, with sound.
+ * `boomAtMs` is when the rocket explodes in the fail clip; the trajectory map stops there.
+ * `liftoffAtMs` is roughly when the rocket leaves the pad in both clips.
+ */
+export const LAUNCH_VIDEO = {
+  success: `${PUBLIC}videos/launch-success.mp4`,
+  fail: `${PUBLIC}videos/launch-failed.mp4`,
+  durationMs: 10_000,
+  liftoffAtMs: 1500,
+  boomAtMs: 5200,
+}
+
 /** Every 25 to 60 seconds. */
 export const VOICE = { text: 'Hello, World', minGapMs: 25_000, maxGapMs: 60_000, pitch: 0.7, rate: 0.85 }
 

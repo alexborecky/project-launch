@@ -1,0 +1,13 @@
+.video {
+  position: absolute;
+  inset: 0;
+  /* No z-index: it sits after the photo scene and before the HUD in the page, so it lands between them. */
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.on { opacity: 1; }

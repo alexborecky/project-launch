@@ -1,18 +1,23 @@
 // What a launch looks like at a given moment. Every screen works this out from the same
 // shared launch record and the (server) clock, so they all show the same thing at the same time.
+import { LAUNCH_VIDEO } from '../config'
 import type { LaunchRecord } from './actions'
 import type { Flight } from './flight'
 import { ascentMs } from './trajectory'
 
 export const COUNT_MS = 900 // each of 3, 2, 1
-export const IGNITION_MS = 800
-export const BOOM_MS = 1300
+/** The clip starts right after the countdown. */
+export const VIDEO_AT = COUNT_MS * 3
 
-/** Milliseconds from the start of the countdown to when the climb begins and when the result shows. */
+/**
+ * Milliseconds from the start of the countdown to each phase. After the countdown everything follows
+ * the launch clip: ignition until lift-off, the climb, the explosion in the fail clip, and the result
+ * when the clip ends.
+ */
 export function phases(launch: LaunchRecord) {
-  const climbAt = COUNT_MS * 3 + IGNITION_MS
+  const climbAt = VIDEO_AT + LAUNCH_VIDEO.liftoffAtMs
   const boomAt = climbAt + ascentMs(launch.outcome)
-  const resultAt = launch.outcome.kind === 'orbit' ? boomAt : boomAt + BOOM_MS
+  const resultAt = VIDEO_AT + LAUNCH_VIDEO.durationMs
   return { climbAt, boomAt, resultAt }
 }
 

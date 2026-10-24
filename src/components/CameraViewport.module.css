@@ -49,15 +49,6 @@
   pointer-events: none;
 }
 
-.flash {
-  position: absolute;
-  inset: 0;
-  background: #fff6d6;
-  pointer-events: none;
-  animation: flash 0.7s ease-out forwards;
-}
-
-@keyframes flash { from { opacity: 0.75; } to { opacity: 0; } }
 
 /* ---- HUD ---- */
 

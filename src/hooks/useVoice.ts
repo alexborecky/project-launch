@@ -1,15 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { VOICE } from '../config'
-
-const MUTE_KEY = 'project-hack:muted'
-
-function readMuted() {
-  try {
-    return localStorage.getItem(MUTE_KEY) === '1'
-  } catch {
-    return false
-  }
-}
+import { setMuted as saveMuted, useMuted } from './muted'
 
 /** Has the user clicked or pressed a key yet? Browsers block speech until then. */
 function userHasInteracted() {
@@ -19,7 +10,7 @@ function userHasInteracted() {
 
 /** The "Hello, World" transmissions: random timer, mute toggle, speaking state. */
 export function useVoice() {
-  const [muted, setMutedState] = useState(readMuted)
+  const muted = useMuted()
   const [speaking, setSpeaking] = useState(false)
   const mutedRef = useRef(muted)
   useEffect(() => {
@@ -56,12 +47,7 @@ export function useVoice() {
   }, [speak])
 
   const setMuted = useCallback((value: boolean) => {
-    setMutedState(value)
-    try {
-      localStorage.setItem(MUTE_KEY, value ? '1' : '0')
-    } catch {
-      // ignore
-    }
+    saveMuted(value)
     if (value && 'speechSynthesis' in window) {
       window.speechSynthesis.cancel()
       setSpeaking(false)

@@ -31,3 +31,14 @@ describe('flightAt', () => {
     expect(flightAt(lost, 10_000 + 3_600_000, 0)).toMatchObject({ phase: 'result', outcome: { kind: 'lost' } })
   })
 })
+
+describe('launch clip timing', () => {
+  it('shows the result when the 10 s clip ends, for success and failure alike', () => {
+    expect(phases(orbit).resultAt).toBe(COUNT_MS * 3 + 10_000)
+    expect(phases(lost).resultAt).toBe(COUNT_MS * 3 + 10_000)
+  })
+
+  it('explodes when the fail clip does', () => {
+    expect(phases(lost).boomAt).toBe(COUNT_MS * 3 + 5200)
+  })
+})
