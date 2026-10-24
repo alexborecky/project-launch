@@ -99,9 +99,11 @@ npm run preview:demo   # serves it at http://localhost:4174
 
 The camera photos are in `public/camera/`: `launchpad-day.png`, `launchpad-dusk.png` and `launchpad-night.png`. The time slots (Prague time) are set in `CAMERA_SLOTS` in `src/config.ts`:
 
-- day 07:00–16:00
-- dusk 16:00–18:00
-- night 18:00–07:00
+- day 07:00–16:20
+- dusk 16:20–17:30 (the 17:00 launch falls here)
+- night 17:30–07:00
+
+To adjust them, change the `from` times (HH:MM, Prague time) in `CAMERA_SLOTS`.
 
 When the slot changes, the photo and the rocket on it fade over to the new lighting together, in about 6 seconds.
 

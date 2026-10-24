@@ -76,10 +76,17 @@ export function formatCountdown(msLeft: number): string {
 
 export type CameraSlot = (typeof CAMERA_SLOTS)[number]
 
-/** Which camera image belongs to an hour of the day (Prague). */
-export function cameraSlotForHour(hour: number, slots: readonly CameraSlot[] = CAMERA_SLOTS): CameraSlot {
-  const sorted = [...slots].sort((a, b) => a.from - b.from)
+/** "16:20" → minutes since midnight. */
+const minutesOf = (hhmm: string) => {
+  const [h, m] = hhmm.split(':').map(Number)
+  return h * 60 + (m || 0)
+}
+
+/** Which camera image belongs to a time of day (Prague). */
+export function cameraSlotAt(hour: number, minute = 0, slots: readonly CameraSlot[] = CAMERA_SLOTS): CameraSlot {
+  const now = hour * 60 + minute
+  const sorted = [...slots].sort((a, b) => minutesOf(a.from) - minutesOf(b.from))
   let current = sorted[sorted.length - 1] // before the first slot of the day, the last one (night) still runs
-  for (const s of sorted) if (hour >= s.from) current = s
+  for (const s of sorted) if (now >= minutesOf(s.from)) current = s
   return current
 }

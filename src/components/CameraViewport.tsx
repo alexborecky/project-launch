@@ -1,6 +1,6 @@
 import { CAMERA_SLOTS, LAUNCH_VIDEO, PHOTO_SIZE, TOPICS, VIABILITY } from '../config'
 import { climbFor, modeLabel, resultText, type Flight } from '../game/flight'
-import { cameraSlotForHour, formatClock, utcOffsetLabel, wallClock } from '../game/time'
+import { cameraSlotAt, formatClock, utcOffsetLabel, wallClock } from '../game/time'
 import { Rocket } from '../rocket/Rocket'
 import { useForcedSlot } from '../demo/demo'
 import { LaunchVideo } from './LaunchVideo'
@@ -34,7 +34,7 @@ const pct = (v: number, of: number) => `${(v / of) * 100}%`
 
 export function CameraViewport({ now, flight, layers, videoStart, reducedMotion }: CameraViewportProps) {
   const forced = useForcedSlot() // demo toolbar or ?camera=
-  const slot = CAMERA_SLOTS.find((c) => c.id === forced) ?? cameraSlotForHour(wallClock(now).hour)
+  const slot = CAMERA_SLOTS.find((c) => c.id === forced) ?? cameraSlotAt(wallClock(now).hour, wallClock(now).minute)
   const outcome = 'outcome' in flight ? flight.outcome : null
   const climb = outcome ? climbFor(outcome) : { rise: 0, ms: 0 }
   const climbing = flight.phase === 'climb' || flight.phase === 'boom' || flight.phase === 'result'

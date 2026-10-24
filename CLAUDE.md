@@ -48,7 +48,7 @@ Vite + React + TypeScript, plain CSS modules and CSS variables, no UI or CSS fra
   - The clips are night-lit, so they look slightly off against the day and dusk photos. Flagged to Alex; nothing decided yet.
 - `.env` must not contain `VITE_SYNC`. Vite reads `.env` too, so plain `npm run dev` would switch to shared saving. netlify.toml sets it for Netlify builds and `npm run netlify`.
 - Launch Conditions has 8 px of extra bottom padding; its slot is 195 px.
-- Camera slots: day 07–16, dusk 16–18, night 18–07. The dawn slot was removed, as Alex asked.
+- Camera slots (`from` as HH:MM, Prague time): day 07:00, dusk 16:20, night 17:30 (set 24 Oct 2026; Alex will check the real light on site and may adjust). The dawn slot was removed, as Alex asked.
 - Flight state is kept in memory only. A reload returns to the pad, but the parts stay.
 - Shared state uses Netlify Blobs and Functions. Hosting is Netlify, site name `project-sofa-launch`. The earlier Cloudflare idea was dropped once Netlify was chosen.
 

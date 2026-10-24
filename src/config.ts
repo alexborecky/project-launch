@@ -98,28 +98,28 @@ export const ROCKET_LAYERS = {
 }
 
 /**
- * Prague hours. Each slot runs from its `from` hour until the next slot starts (night wraps past midnight).
+ * Prague time (HH:MM). Each slot runs from its `from` time until the next slot starts (night wraps past midnight).
  * `rocket` is the lighting folder in ROCKET_LAYERS. `placement` is where the 256 × 1536 layer canvas
  * goes in the photo, in photo pixels, matched to the reference renders (nose tip and engines line up).
  */
 export const CAMERA_SLOTS = [
   {
     id: 'day',
-    from: 7,
+    from: '07:00',
     image: `${PUBLIC}camera/launchpad-day.png`,
     rocket: 'day',
     placement: { left: 550.4, top: 69.9, width: 110.6, height: 754.2 },
   },
   {
     id: 'dusk',
-    from: 16,
+    from: '16:20',
     image: `${PUBLIC}camera/launchpad-dusk.png`,
     rocket: 'dusk',
     placement: { left: 550.4, top: 69.9, width: 110.6, height: 754.2 },
   },
   {
     id: 'night',
-    from: 18,
+    from: '17:30',
     image: `${PUBLIC}camera/launchpad-night.png`,
     rocket: 'night', // 'black-night' is the alternative near-black set
     placement: { left: 552.4, top: 102, width: 106.5, height: 720.4 },
