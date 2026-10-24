@@ -108,3 +108,58 @@
 
 .zoomBtn:hover:not(:disabled) { border-color: var(--c-muted); }
 .zoomBtn:disabled { opacity: 0.4; cursor: default; }
+
+/* ---- during a launch ---- */
+
+.trail {
+  position: absolute;
+  left: -1px;
+  top: -1px;
+  width: 322px;
+  height: 262px;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.trail polyline {
+  fill: none;
+  stroke: var(--c-accent);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 3px rgba(226, 83, 25, 0.8));
+}
+
+.marker {
+  position: absolute;
+  max-width: none;
+  translate: -50% -50%;
+}
+
+.burst {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  translate: -50% -50%;
+  border: 1.5px solid var(--c-accent-soft);
+  border-radius: 50%;
+  box-shadow: 0 0 10px var(--c-accent-glow);
+  animation: burst 1.2s ease-out;
+}
+
+@keyframes burst {
+  from { transform: scale(0.2); opacity: 1; border-width: 4px; }
+  to { transform: scale(1); opacity: 1; border-width: 1.5px; }
+}
+
+.lostLabel {
+  font-size: 9.5px;
+  letter-spacing: 0.76px;
+  color: var(--c-accent-soft);
+}
+
+.arrived { animation: arrived 1.6s ease-in-out infinite; }
+
+@keyframes arrived {
+  50% { filter: drop-shadow(0 0 6px var(--c-accent)); transform: scale(1.25); }
+}

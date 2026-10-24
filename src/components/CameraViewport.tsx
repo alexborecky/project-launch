@@ -1,4 +1,4 @@
-import { ROCKET_PLACEMENT, TOPICS, VIABILITY, type PartId } from '../config'
+import { CAMERA_SLOTS, ROCKET_PLACEMENT, TOPICS, VIABILITY, type PartId } from '../config'
 import { climbFor, modeLabel, resultText, type Flight } from '../game/flight'
 import { cameraSlotForHour, formatClock, utcOffsetLabel, wallClock } from '../game/time'
 import { ROCKET_VIEWBOX } from '../rocket/parts'
@@ -15,6 +15,9 @@ const PITCH = ['120', '60', '0', '-60', '-120']
 
 const CORE_TOTAL = TOPICS.filter((t) => t.type === 'core').length
 
+/** `?camera=dusk` forces a camera slot, for checking images without waiting for the clock. */
+const FORCED_SLOT = CAMERA_SLOTS.find((c) => c.id === new URLSearchParams(location.search).get('camera'))
+
 interface CameraViewportProps {
   now: Date
   flight: Flight
@@ -22,7 +25,7 @@ interface CameraViewportProps {
 }
 
 export function CameraViewport({ now, flight, parts }: CameraViewportProps) {
-  const slot = cameraSlotForHour(wallClock(now).hour)
+  const slot = FORCED_SLOT ?? cameraSlotForHour(wallClock(now).hour)
   const outcome = 'outcome' in flight ? flight.outcome : null
   const climb = outcome ? climbFor(outcome) : { rise: 0, ms: 0 }
   const climbing = flight.phase === 'climb' || flight.phase === 'boom' || flight.phase === 'result'
@@ -48,7 +51,16 @@ export function CameraViewport({ now, flight, parts }: CameraViewportProps) {
     <section className={s.view} aria-label="Pad camera">
       {/* The scene has the photo's proportions and covers the viewport, so the rocket stays pinned to the pad. */}
       <div className={s.scene}>
-        <img className={s.photo} src={slot.image} alt="Camera view of the launch pad" />
+        {/* All slots stay loaded; the current one fades in over the others. */}
+        {CAMERA_SLOTS.map((c) => (
+          <img
+            key={c.id}
+            className={`${s.photo} ${c.id === slot.id ? s.photoOn : ''}`}
+            src={c.image}
+            alt={c.id === slot.id ? `Camera view of the launch pad (${c.id})` : ''}
+            aria-hidden={c.id !== slot.id}
+          />
+        ))}
 
         <Rocket
         className={s.rocket}
@@ -96,7 +108,8 @@ export function CameraViewport({ now, flight, parts }: CameraViewportProps) {
             <span className={s.pitchTick} />
           </span>
         ))}
-        <span className={s.pitchMarker} />
+        {/* Tilts up towards 60° while the rocket climbs. */}
+        <span className={s.pitchMarker} style={climbing ? { top: 58, transitionDuration: `${climb.ms}ms` } : undefined} />
       </div>
 
       <div className={s.zoomRail} aria-hidden="true">

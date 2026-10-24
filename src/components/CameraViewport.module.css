@@ -25,10 +25,20 @@
   inset: 0;
   width: 100%;
   height: 100%;
+  opacity: 0;
+  /* The old image stays until the new one has fully faded in on top of it. */
+  transition: opacity 0s 6s;
+}
+
+.photoOn {
+  z-index: 1;
+  opacity: 1;
+  transition: opacity 6s ease-in-out;
 }
 
 .rocket {
   position: absolute;
+  z-index: 2; /* above the fading photos */
   translate: -50% 0;
 }
 
@@ -183,6 +193,7 @@
   width: 5px;
   height: 14px;
   background: var(--c-accent);
+  transition: top 0.6s ease-in-out;
 }
 
 .zoomRail {

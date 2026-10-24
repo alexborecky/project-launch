@@ -6,7 +6,7 @@ export type Flight =
   | { phase: 'empty' }
   | { phase: 'countdown'; n: number; outcome: Outcome }
   | { phase: 'ignition'; outcome: Outcome }
-  | { phase: 'climb'; outcome: Outcome }
+  | { phase: 'climb'; outcome: Outcome; /** performance.now() when the climb began */ startedAt?: number }
   | { phase: 'boom'; outcome: Outcome }
   | { phase: 'result'; outcome: Outcome }
 

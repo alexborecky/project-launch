@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useReducedMotion } from '../hooks/hooks'
 import { store } from '../store/store'
-import { climbFor, type Flight } from './flight'
+import type { Flight } from './flight'
 import { rollOutcome } from './rules'
+import { ascentMs } from './trajectory'
 
 const COUNT_MS = 900
 const IGNITION_MS = 800
@@ -38,8 +39,8 @@ export function useLaunch(initial: Flight = { phase: 'idle' }) {
     }
     setFlight({ phase: 'ignition', outcome })
     if (!(await wait(IGNITION_MS))) return
-    setFlight({ phase: 'climb', outcome })
-    if (!(await wait(reducedMotion ? 0 : climbFor(outcome).ms))) return
+    setFlight({ phase: 'climb', outcome, startedAt: performance.now() })
+    if (!(await wait(reducedMotion ? 0 : ascentMs(outcome)))) return
     if (outcome.kind !== 'orbit') {
       setFlight({ phase: 'boom', outcome })
       if (!(await wait(BOOM_MS))) return

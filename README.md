@@ -32,6 +32,7 @@ Add `#godmode` to the URL, for example `http://localhost:5173/#godmode`.
 
 - `?preview` adds a bar for stepping through the launch states. `?preview=orbit` opens on one state (`empty`, `countdown`, `ignition`, `climb`, `boom`, `pad`, `lost`, `orbit`).
 - `?demo` shows a nearly complete rocket without touching saved data.
+- `?camera=night` (or `dawn`, `day`, `dusk`) forces a camera image, so you can check new photos without waiting for the clock.
 
 ## Where things live
 
@@ -40,6 +41,8 @@ Add `#godmode` to the URL, for example `http://localhost:5173/#godmode`.
 | Topics, hidden weights, launch time, formulas, camera slots, rocket position, fake panel values | `src/config.ts` |
 | Odds, launch rule, outcome roll, topic steps | `src/game/rules.ts` (tests next to it) |
 | Prague time, countdown, camera slot | `src/game/time.ts` |
+| Launch timing | `src/game/useLaunch.ts` |
+| Trajectory map: milestones, altitude and speed over time | `src/game/trajectory.ts` |
 | Saved data (swap this for shared state later) | `src/store/store.ts` |
 | Rocket parts, one SVG layer per part id | `src/rocket/parts.tsx` |
 | Design tokens from Figma | `src/styles/tokens.css` |
@@ -54,4 +57,4 @@ Put the pad photos in `public/camera/`: `dawn.jpg`, `day.jpg`, `dusk.jpg` and `n
 - dusk 16:00–18:00
 - night 18:00–05:00
 
-All four images must be 3:2 and share the same framing as the current photo, because the rocket is pinned to the pad by `ROCKET_PLACEMENT` (in % of the photo). For now, all four files are the photo from the Figma frame (node `18:416`).
+When the slot changes, the new image fades in over about 6 seconds. All four images must be 3:2 and share the same framing as the current photo, because the rocket is pinned to the pad by `ROCKET_PLACEMENT` (in % of the photo). For now, all four files are the photo from the Figma frame (node `18:416`).

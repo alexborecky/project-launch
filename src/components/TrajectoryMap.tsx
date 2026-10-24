@@ -1,4 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import type { Flight } from '../game/flight'
+import { altitudeAt, ascentMs, positionAt, speedAt, trailTo } from '../game/trajectory'
 import earthLimb from '../assets/figma/earth-limb.svg'
 import limbGlow from '../assets/figma/limb-glow.png'
 import ringOuter from '../assets/figma/map-ring-outer.svg'
@@ -20,12 +22,38 @@ const GRID = Array.from({ length: 13 }, (_, i) => 11 + i * 24)
 const ROWS = Array.from({ length: 11 }, (_, i) => 11 + i * 24)
 
 interface TrajectoryMapProps {
-  altitudeKm: number
-  velocityKms: number
+  flight: Flight
+  reducedMotion: boolean
 }
 
-export function TrajectoryMap({ altitudeKm, velocityKms }: TrajectoryMapProps) {
+/** How far through the climb we are (0..1), or null when the rocket hasn't left the pad. */
+function useAscentProgress(flight: Flight, reducedMotion: boolean): number | null {
+  const [now, setNow] = useState(() => performance.now())
+  const climbing = flight.phase === 'climb' && flight.startedAt != null && !reducedMotion
+  // A plain timer rather than animation frames, so it keeps going even when the tab is in the background.
+  useEffect(() => {
+    if (!climbing) return
+    const id = setInterval(() => setNow(performance.now()), 40)
+    return () => clearInterval(id)
+  }, [climbing])
+
+  if (flight.phase === 'boom' || flight.phase === 'result') return 1
+  if (flight.phase !== 'climb') return null
+  if (flight.startedAt == null) return 0.5 // static preview
+  if (reducedMotion) return 1
+  return Math.max(0, Math.min(1, (now - flight.startedAt) / ascentMs(flight.outcome)))
+}
+
+export function TrajectoryMap({ flight, reducedMotion }: TrajectoryMapProps) {
   const [zoom, setZoom] = useState(0)
+  const progress = useAscentProgress(flight, reducedMotion)
+  const outcome = 'outcome' in flight ? flight.outcome : null
+  const orbitKm = outcome?.kind === 'orbit' ? outcome.altitudeKm : undefined
+  const altitudeKm = outcome && progress != null ? altitudeAt(outcome, progress) : 0
+  const velocityKms = progress != null ? speedAt(altitudeKm) : 0
+  const marker = progress != null ? positionAt(altitudeKm, orbitKm) : null
+  const lost = outcome != null && outcome.kind !== 'orbit' && (flight.phase === 'boom' || flight.phase === 'result')
+  const arrived = outcome?.kind === 'orbit' && flight.phase === 'result'
 
   return (
     <section className={s.panel} aria-label="Trajectory map">
@@ -57,11 +85,29 @@ export function TrajectoryMap({ altitudeKm, velocityKms }: TrajectoryMapProps) {
           <img src={maxqDot} alt="" width={23} height={23} className={s.abs} style={{ left: 154.94, top: 105.4 }} />
           <span className={`${s.nodeLabel} ${s.maxq}`} style={{ left: 188.44, top: 109.9 }}>MAX-Q</span>
           <Node ring={nodeRingDim} dot={nodeDotDim} x={190.64} y={53.88} label="STAGE 2" dim />
-          <img src={target} alt="" width={14} height={14} className={s.abs} style={{ left: 243.16, top: 18.2 }} />
+          <img src={target} alt="" width={14} height={14} className={`${s.abs} ${arrived ? s.arrived : ''}`} style={{ left: 243.16, top: 18.2 }} />
           <span className={`${s.nodeLabel} ${s.orbit}`} style={{ left: 262.16, top: 18.2 }}>ORBIT</span>
+
+          {marker && (
+            <>
+              <svg className={s.trail} viewBox="0 0 322 262" aria-hidden="true">
+                <polyline points={trailTo(altitudeKm, orbitKm).map((p) => `${p.x},${p.y}`).join(' ')} />
+              </svg>
+              {lost ? (
+                <span className={s.burst} style={{ left: marker.x, top: marker.y }} aria-hidden="true" />
+              ) : (
+                <img src={maxqDot} alt="" width={23} height={23} className={s.marker} style={{ left: marker.x, top: marker.y }} />
+              )}
+              {lost && flight.phase === 'result' && (
+                <span className={`${s.nodeLabel} ${s.lostLabel}`} style={{ left: marker.x + 12, top: marker.y + 6 }}>
+                  SIGNAL LOST
+                </span>
+              )}
+            </>
+          )}
         </div>
 
-        <p className={s.readout} aria-live="off">
+        <p className={s.readout} role="status" aria-live="off" aria-label={`Altitude ${Math.round(altitudeKm)} kilometres, speed ${velocityKms.toFixed(1)} kilometres per second`}>
           ALT {altitudeKm < 10 ? altitudeKm.toFixed(1) : Math.round(altitudeKm)} km · V {velocityKms.toFixed(1)} km/s
         </p>
 

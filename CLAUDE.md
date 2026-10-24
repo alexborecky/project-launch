@@ -32,7 +32,12 @@ Vite + React + TypeScript, plain CSS modules and CSS variables, no UI or CSS fra
 
 ## Slices
 1. Setup, full layout, game logic, local state, launch sequence (`src/game/useLaunch.ts`). Done. The launch visuals (countdown, result panels and so on) are placeholders Alex accepted for now. Alex is designing replacements, so keep them easy to swap. Review them with `?preview`.
-2. Camera crossfade by time of day, trajectory marker and ALT/V during launch.
+2. Camera crossfade by time of day, trajectory marker and ALT/V during launch. Done:
+   - All slot images stay loaded. The new one fades in on top over 6 s, then the old one drops away (no dark dip). `?camera=<slot>` forces a slot.
+   - The map milestones stand for altitudes: pad 0, stage 1 at 10 km, max-Q at 25 km, stage 2 at 70 km, and orbit at the outcome's altitude. The marker follows a smooth curve through them. Typical failures (12–44 km) stop between stage 1 and stage 2, and the map shows SIGNAL LOST there.
+   - A successful flight lasts 7 s on the map, so the orbit result now appears about 3 s after the rocket leaves the camera.
+   - Map progress runs on a timer, not animation frames, so it keeps going in a background tab.
+   - The camera's pitch marker tilts up during the climb.
 3. Shared state, only after the approach is agreed.
 
 ## Checks before handing back

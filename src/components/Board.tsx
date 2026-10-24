@@ -116,7 +116,7 @@ export function Board({ flight, onLaunch, onReturn }: BoardProps) {
         </div>
         <div className={s.side}>
           <div className={s.status}><SystemStatus /></div>
-          <div className={s.grow}><TrajectoryMap altitudeKm={0} velocityKms={0} /></div>
+          <div className={s.grow}><TrajectoryMap flight={flight} reducedMotion={reducedMotion} /></div>
           <div className={s.comms}><Communications reducedMotion={reducedMotion} /></div>
         </div>
       </main>
