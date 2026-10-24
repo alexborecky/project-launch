@@ -26,7 +26,7 @@ function nextNewPart(): string {
  * - A topic moves from Waiting to In Progress → its message plays 5–10 s later (if it has one).
  * - A part is added → the next "new part" message in turn (1, 2, 3, 1…). Many parts at once (demo) → just one.
  * - A launch starts → the countdown plays, unless this screen joined after it began.
- * - Every 30–90 s → random radio chatter, if nothing else is playing.
+ * - About every 20 minutes (18–22) → random radio chatter, if nothing else is playing.
  * Changes seen when the page first loads don't count, so a refresh stays quiet.
  */
 export function useAudioCues(game: GameData) {

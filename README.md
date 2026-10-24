@@ -23,7 +23,7 @@ npm test         # unit tests for the game logic
 - Radio messages from `public/audio/` play in Communications, one at a time:
   - When someone starts a topic, its message plays 5–10 seconds later, if it has one (see `AUDIO.targeted` in `src/config.ts`).
   - When a part is added, the next `new-part-` message plays in turn: 1, 2, 3, then 1 again.
-  - Every 30–90 seconds, random chatter from `audio/random/` plays.
+  - About every 20 minutes (18–22 minutes apart), random chatter from `audio/random/` plays.
   - The launch countdown (5, 4, 3, 2, 1) is timed to `t-minus-countdown.mp3`.
   - Click the waveform to play random chatter right away.
 - The speaker button mutes all radio audio and the launch clip's sound. Click the waveform to play one right away.

@@ -50,7 +50,7 @@ Vite + React + TypeScript, plain CSS modules and CSS variables, no UI or CSS fra
   - A topic moving Waiting → In Progress plays its targeted file after 5–10 s. Mapped topics: engine, tank, body + paint (same colour-scheme file), window, nose, boosterR. The other five have no file yet.
   - Any new part added plays the next `new-part-N` file in turn (1→2→3→1). The position is remembered per device in localStorage (`project-hack:new-part-index`).
   - A launch start plays `t-minus-countdown.mp3`, but not for screens that join more than 1.5 s late.
-  - Random chatter plays every 30–90 s if nothing is playing.
+  - Random chatter plays about every 20 minutes (18–22 min, `randomGapMs`) if nothing is playing. Alex asked for this on 24 Oct 2026, because the board runs for about 20 hours.
   - Changes seen on page load don't count. Every screen with sound plays the cues, laptops included, if they've clicked once.
 - Countdown is 5→1, timed to the countdown audio: `LAUNCH_COUNTDOWN.marksMs` [0, 2400, 3600, 4850, 5850] and `liftoffMs` 6300 (measured from the audio's loudness, not by ear; adjust if the voice and numbers drift). The clip starts at liftoff.
 - Demo toolbar has an Audio row to play every file.

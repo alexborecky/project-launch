@@ -143,7 +143,7 @@ export const LAUNCH_VIDEO = {
  * Radio audio in public/audio/. One file plays at a time; they queue up.
  * - `targeted`: plays 5–10 s after someone starts that topic. Topics without a file stay silent.
  * - `newPart`: played in turn (1, 2, 3, 1…) each time a part is added to the rocket.
- * - `random`: background chatter at random moments.
+ * - `random`: background chatter, about every 20 minutes.
  * - `countdown`: plays with the launch countdown (see LAUNCH_COUNTDOWN).
  */
 const AUDIO_DIR = `${PUBLIC}audio`
@@ -163,7 +163,8 @@ export const AUDIO = {
   countdown: `${AUDIO_DIR}/targeted/t-minus-countdown.mp3`,
   targetedDelayMs: [5_000, 10_000],
   newPartDelayMs: 800,
-  randomGapMs: [30_000, 90_000],
+  // About every 20 minutes (18–22 min apart), so a 20-hour day doesn't get chatty.
+  randomGapMs: [18 * 60_000, 22 * 60_000],
 }
 
 /**
