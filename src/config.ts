@@ -65,19 +65,62 @@ export const ALTITUDE = {
   pad: (random: number) => 0.005 + random * 0.01,
 }
 
-/** Prague hours. Each slot runs from its `from` hour until the next slot starts. */
-export const CAMERA_SLOTS = [
-  { id: 'dawn', from: 5, image: '/camera/dawn.jpg' },
-  { id: 'day', from: 8, image: '/camera/day.jpg' },
-  { id: 'dusk', from: 16, image: '/camera/dusk.jpg' },
-  { id: 'night', from: 18, image: '/camera/night.jpg' },
-] as const
+/** Camera photos are 1536 × 1024 and all share one framing. */
+export const PHOTO_SIZE = { w: 1536, h: 1024 }
 
 /**
- * Where the rocket stands in the camera photo, as % of the photo (all images share one framing, 3:2).
- * `x` is the rocket's centre, `bottom` its base, `height` its height.
+ * Rocket artwork: 12 transparent layers per lighting set, each 256 × 1536, stacked in order.
+ * Adding a part to the rocket shows the next layer, whichever topic it came from.
  */
-export const ROCKET_PLACEMENT = { x: 36.6, bottom: 19.6, height: 47 }
+export const ROCKET_LAYERS = {
+  base: '/rocket-48-construction-layers',
+  canvas: { w: 256, h: 1536 },
+  /** Where the engine nozzles end inside the layer canvas (the flame starts here). */
+  nozzle: { x: 128, y: 1487 },
+  files: [
+    '01-primary-truss.png',
+    '02-propellant-tanks.png',
+    '03-upper-stage-tanks.png',
+    '04-feed-lines-and-cables.png',
+    '05-avionics-and-payload-bay.png',
+    '06-thrust-frame-and-finishing-hardware.png',
+    '07-engine-cluster.png',
+    '08-aft-skirt.png',
+    '09-lower-booster-shell.png',
+    '10-main-booster-shell.png',
+    '11-upper-stage-and-interstage.png',
+    '12-fairing-and-final-surface.png',
+  ],
+}
+
+/**
+ * Prague hours. Each slot runs from its `from` hour until the next slot starts (night wraps past midnight).
+ * `rocket` is the lighting folder in ROCKET_LAYERS. `placement` is where the 256 × 1536 layer canvas
+ * goes in the photo, in photo pixels, matched to the reference renders (nose tip and engines line up).
+ */
+export const CAMERA_SLOTS = [
+  {
+    id: 'day',
+    from: 7,
+    image: '/camera/launchpad-day.png',
+    rocket: 'day',
+    placement: { left: 550.4, top: 69.9, width: 110.6, height: 754.2 },
+  },
+  {
+    id: 'dusk',
+    from: 16,
+    image: '/camera/launchpad-dusk.png',
+    rocket: 'dusk',
+    placement: { left: 550.4, top: 69.9, width: 110.6, height: 754.2 },
+  },
+  {
+    id: 'night',
+    from: 18,
+    image: '/camera/launchpad-night.png',
+    rocket: 'night', // 'black-night' is the alternative near-black set
+    placement: { left: 552.4, top: 102, width: 106.5, height: 720.4 },
+  },
+] as const
 
 /** Every 25 to 60 seconds. */
 export const VOICE = { text: 'Hello, World', minGapMs: 25_000, maxGapMs: 60_000, pitch: 0.7, rate: 0.85 }

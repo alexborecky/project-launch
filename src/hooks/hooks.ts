@@ -2,10 +2,12 @@ import { useEffect, useState, useSyncExternalStore } from 'react'
 import { TOPICS } from '../config'
 import { store, type GameData } from '../store/store'
 
-/** `?demo` (design review only) shows a nearly complete rocket without touching saved data. */
-const DEMO: GameData | null = new URLSearchParams(location.search).has('demo')
-  ? { topics: Object.fromEntries(TOPICS.slice(0, 11).map((t) => [t.part, { status: 'added' as const }])), goNoGo: true }
-  : null
+/** `?demo` (design review only) shows a nearly complete rocket without touching saved data; `?demo=5` shows 5 parts. */
+const demoParam = new URLSearchParams(location.search).get('demo')
+const DEMO: GameData | null =
+  demoParam != null
+    ? { topics: Object.fromEntries(TOPICS.slice(0, Number(demoParam) || 11).map((t) => [t.part, { status: 'added' as const }])), goNoGo: true }
+    : null
 
 export function useGame(): GameData {
   const data = useSyncExternalStore(store.subscribe, store.get)

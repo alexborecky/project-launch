@@ -26,7 +26,16 @@ Vite + React + TypeScript, plain CSS modules and CSS variables, no UI or CSS fra
   2. Integrate: launch is viable.
   3. Go / no-go: a manual tick in god mode.
   4. Launch: locked until launch time, ticked after a launch.
-- The rocket is placed in % of the photo (`ROCKET_PLACEMENT`), inside a 3:2 scene that covers the viewport, so it stays on the pad at any screen ratio.
+- Rocket art (since 24 Oct 2026):
+  - It's 12 PNG construction layers per lighting set, in `public/rocket-48-construction-layers/` (256 × 1536 canvas). It replaced the old SVG parts.
+  - The build is linear: N parts added means layers 1..N show, whichever topics they came from. The odds and the hidden weights per topic are unchanged.
+  - Lighting follows the camera slot: day, dusk or night. `black-night` exists but isn't used.
+  - Each slot in `CAMERA_SLOTS` has its own `placement` (photo px), matched to Alex's reference renders. The nose tip and engines line up with the references. The layer art is slightly longer than the reference rocket, so it's scaled a little narrower horizontally to fit.
+  - Night is placed lower and shorter, as in its reference.
+  - The photo and its rocket crossfade as one unit, inside a 3:2 scene that covers the viewport.
+  - Flame, smoke and explosion are drawn in layer-canvas units. Climb distance is in rocket heights (`climbFor`).
+  - The countdown and result panels sit in the open sky right of the rocket.
+- Camera slots: day 07–16, dusk 16–18, night 18–07. The dawn slot was removed, as Alex asked.
 - Flight state is kept in memory only. A reload returns to the pad, but the parts stay.
 - Shared state recommendation (slice 3): a tiny hosted key-value store (Cloudflare Worker + KV or Durable Object) behind the `GameStore` interface. Jira and one-screen-only were rejected for now.
 

@@ -1,7 +1,6 @@
-import { CAMERA_SLOTS, ROCKET_PLACEMENT, TOPICS, VIABILITY, type PartId } from '../config'
+import { CAMERA_SLOTS, PHOTO_SIZE, TOPICS, VIABILITY } from '../config'
 import { climbFor, modeLabel, resultText, type Flight } from '../game/flight'
 import { cameraSlotForHour, formatClock, utcOffsetLabel, wallClock } from '../game/time'
-import { ROCKET_VIEWBOX } from '../rocket/parts'
 import { Rocket } from '../rocket/Rocket'
 import camDot from '../assets/figma/cam-dot.svg'
 import zoomDot from '../assets/figma/zoom-dot.svg'
@@ -21,10 +20,13 @@ const FORCED_SLOT = CAMERA_SLOTS.find((c) => c.id === new URLSearchParams(locati
 interface CameraViewportProps {
   now: Date
   flight: Flight
-  parts: ReadonlySet<PartId>
+  /** Parts on the rocket; each one shows the next construction layer. */
+  layers: number
 }
 
-export function CameraViewport({ now, flight, parts }: CameraViewportProps) {
+const pct = (v: number, of: number) => `${(v / of) * 100}%`
+
+export function CameraViewport({ now, flight, layers }: CameraViewportProps) {
   const slot = FORCED_SLOT ?? cameraSlotForHour(wallClock(now).hour)
   const outcome = 'outcome' in flight ? flight.outcome : null
   const climb = outcome ? climbFor(outcome) : { rise: 0, ms: 0 }
@@ -39,41 +41,34 @@ export function CameraViewport({ now, flight, parts }: CameraViewportProps) {
         : null
   const success = flight.phase === 'result' && flight.outcome.kind === 'orbit'
 
-  // Rocket height in % of the viewport → scale its 554-unit-tall drawing to match.
-  const rocketStyle = {
-    left: `${ROCKET_PLACEMENT.x}%`,
-    bottom: `${ROCKET_PLACEMENT.bottom}%`,
-    height: `${ROCKET_PLACEMENT.height}%`,
-    aspectRatio: `${ROCKET_VIEWBOX.w} / ${ROCKET_VIEWBOX.h}`,
-  }
 
   return (
     <section className={s.view} aria-label="Pad camera">
       {/* The scene has the photo's proportions and covers the viewport, so the rocket stays pinned to the pad. */}
       <div className={s.scene}>
-        {/* All slots stay loaded; the current one fades in over the others. */}
+        {/* Every time of day stays loaded: its photo plus the rocket lit to match. The current one fades in over the others. */}
         {CAMERA_SLOTS.map((c) => (
-          <img
-            key={c.id}
-            className={`${s.photo} ${c.id === slot.id ? s.photoOn : ''}`}
-            src={c.image}
-            alt={c.id === slot.id ? `Camera view of the launch pad (${c.id})` : ''}
-            aria-hidden={c.id !== slot.id}
-          />
+          <div key={c.id} className={`${s.slot} ${c.id === slot.id ? s.slotOn : ''}`} aria-hidden={c.id !== slot.id}>
+            <img className={s.photo} src={c.image} alt={c.id === slot.id ? `Camera view of the launch pad (${c.id})` : ''} />
+            <Rocket
+              theme={c.rocket}
+              style={{
+                left: pct(c.placement.left, PHOTO_SIZE.w),
+                top: pct(c.placement.top, PHOTO_SIZE.h),
+                width: pct(c.placement.width, PHOTO_SIZE.w),
+                height: pct(c.placement.height, PHOTO_SIZE.h),
+              }}
+              layers={flight.phase === 'empty' ? 0 : layers}
+              flame={burning}
+              smoke={flight.phase !== 'idle' && flight.phase !== 'empty' && flight.phase !== 'countdown'}
+              shake={burning || flight.phase === 'empty'}
+              rise={climbing ? climb.rise : 0}
+              riseMs={climbing ? climb.ms : 0}
+              exploded={flight.phase === 'boom' && lostVehicle}
+              gone={lostVehicle}
+            />
+          </div>
         ))}
-
-        <Rocket
-        className={s.rocket}
-        style={rocketStyle}
-        parts={flight.phase === 'empty' ? new Set() : parts}
-        flame={burning}
-        smoke={flight.phase !== 'idle' && flight.phase !== 'empty' && flight.phase !== 'countdown'}
-        shake={burning || flight.phase === 'empty'}
-        rise={climbing ? climb.rise : 0}
-        riseMs={climbing ? climb.ms : 0}
-        exploded={flight.phase === 'boom' && lostVehicle}
-        gone={lostVehicle}
-        />
       </div>
 
       <div className={s.vignette} aria-hidden="true" />
@@ -145,7 +140,7 @@ export function CameraViewport({ now, flight, parts }: CameraViewportProps) {
         )}
       </div>
 
-      {parts.size === 0 && flight.phase === 'idle' && (
+      {layers === 0 && flight.phase === 'idle' && (
         <p className={s.emptyHint}>The pad is empty. Finish a topic and add its part to the rocket.</p>
       )}
     </section>

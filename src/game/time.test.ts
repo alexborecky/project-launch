@@ -33,7 +33,8 @@ describe('formatting', () => {
 describe('cameraSlotForHour', () => {
   it('maps hours to slots', () => {
     expect(cameraSlotForHour(3).id).toBe('night')
-    expect(cameraSlotForHour(5).id).toBe('dawn')
+    expect(cameraSlotForHour(6).id).toBe('night')
+    expect(cameraSlotForHour(7).id).toBe('day')
     expect(cameraSlotForHour(12).id).toBe('day')
     expect(cameraSlotForHour(17).id).toBe('dusk')
     expect(cameraSlotForHour(23).id).toBe('night')

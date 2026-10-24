@@ -12,12 +12,12 @@ export type Flight =
 
 export type Ended = Extract<Outcome, { kind: 'pad' | 'lost' | 'orbit' }>
 
-/** How high the rocket climbs on screen, in rocket units, and how long it takes. */
+/** How high the rocket climbs on screen, in rocket heights, and how long it takes. */
 export function climbFor(outcome: Outcome): { rise: number; ms: number } {
   switch (outcome.kind) {
-    case 'orbit': return { rise: 1400, ms: 3600 }
-    case 'lost': return { rise: 80 + outcome.parts * 26, ms: 1800 }
-    case 'pad': return { rise: 10, ms: 500 }
+    case 'orbit': return { rise: 2.6, ms: 3600 } // well out of the top of the picture
+    case 'lost': return { rise: 0.08 + outcome.parts * 0.025, ms: 1800 } // explodes still in view
+    case 'pad': return { rise: 0.015, ms: 500 } // a few metres
     case 'empty': return { rise: 0, ms: 0 }
   }
 }

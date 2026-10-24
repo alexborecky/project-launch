@@ -1,5 +1,5 @@
 import { useLayoutEffect, useState } from 'react'
-import { TOPICS, type PartId } from '../config'
+import { TOPICS } from '../config'
 import type { Flight } from '../game/flight'
 import { addedParts, isViable, odds as oddsOf, statusOf } from '../game/rules'
 import { LAUNCH_AT } from '../game/time'
@@ -57,7 +57,6 @@ export function Board({ flight, onLaunch, onReturn }: BoardProps) {
   const confirm = useConfirm()
 
   const added = addedParts(game.topics)
-  const parts = new Set<PartId>(added.map((t) => t.part))
   const odds = oddsOf(game.topics)
   const viable = isViable(game.topics)
   const locked = !godMode && now.getTime() < LAUNCH_AT
@@ -107,7 +106,7 @@ export function Board({ flight, onLaunch, onReturn }: BoardProps) {
           <div className={s.conditions}><LaunchConditions now={now} drift={!reducedMotion} /></div>
         </div>
         <div className={s.centre}>
-          <CameraViewport now={now} flight={flight} parts={parts} />
+          <CameraViewport now={now} flight={flight} layers={added.length} />
           <div className={s.deckRow}>
             <ControlDeck odds={odds} parts={added.length} total={TOPICS.length} reducedMotion={reducedMotion} />
             <LaunchSequence steps={steps} />

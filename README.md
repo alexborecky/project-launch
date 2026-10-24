@@ -31,8 +31,8 @@ Add `#godmode` to the URL, for example `http://localhost:5173/#godmode`.
 ## Design review links
 
 - `?preview` adds a bar for stepping through the launch states. `?preview=orbit` opens on one state (`empty`, `countdown`, `ignition`, `climb`, `boom`, `pad`, `lost`, `orbit`).
-- `?demo` shows a nearly complete rocket without touching saved data.
-- `?camera=night` (or `dawn`, `day`, `dusk`) forces a camera image, so you can check new photos without waiting for the clock.
+- `?demo` shows a nearly complete rocket without touching saved data. `?demo=12` shows a finished one, `?demo=3` three parts.
+- `?camera=night` (or `day`, `dusk`) forces a time of day, so you can check photos and rocket lighting without waiting for the clock.
 
 ## Where things live
 
@@ -44,17 +44,20 @@ Add `#godmode` to the URL, for example `http://localhost:5173/#godmode`.
 | Launch timing | `src/game/useLaunch.ts` |
 | Trajectory map: milestones, altitude and speed over time | `src/game/trajectory.ts` |
 | Saved data (swap this for shared state later) | `src/store/store.ts` |
-| Rocket parts, one SVG layer per part id | `src/rocket/parts.tsx` |
+| Rocket: PNG layers plus flame, smoke and explosion | `src/rocket/Rocket.tsx`, art in `public/rocket-48-construction-layers/` |
 | Design tokens from Figma | `src/styles/tokens.css` |
 | Figma assets | `src/assets/figma/` |
 
-## Camera images
+## Camera images and the rocket
 
-Put the pad photos in `public/camera/`: `dawn.jpg`, `day.jpg`, `dusk.jpg` and `night.jpg`. The time slots (Prague time) are set in `CAMERA_SLOTS` in `src/config.ts`:
+The camera photos are in `public/camera/`: `launchpad-day.png`, `launchpad-dusk.png` and `launchpad-night.png`. The time slots (Prague time) are set in `CAMERA_SLOTS` in `src/config.ts`:
 
-- dawn 05:00–08:00
-- day 08:00–16:00
+- day 07:00–16:00
 - dusk 16:00–18:00
-- night 18:00–05:00
+- night 18:00–07:00
 
-When the slot changes, the new image fades in over about 6 seconds. All four images must be 3:2 and share the same framing as the current photo, because the rocket is pinned to the pad by `ROCKET_PLACEMENT` (in % of the photo). For now, all four files are the photo from the Figma frame (node `18:416`).
+When the slot changes, the photo and the rocket on it fade over to the new lighting together, in about 6 seconds.
+
+The rocket is built from the 12 layers in `public/rocket-48-construction-layers/<lighting>/`. Every part added to the rocket shows the next layer, from `01-primary-truss` up to `12-fairing-and-final-surface`, whichever topic it came from. Removing a part hides the top layer again. The hidden weights and the launch odds don't change.
+
+Each slot has its own `placement`, in photo pixels, for where the layer canvas sits in the photo. These were matched to the reference renders. All photos must stay 1536 × 1024 with the same framing.
