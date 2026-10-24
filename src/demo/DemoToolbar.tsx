@@ -1,5 +1,6 @@
 import { useRef, useState, type PointerEvent } from 'react'
-import { CAMERA_SLOTS, TOPICS } from '../config'
+import { AUDIO, CAMERA_SLOTS, TOPICS } from '../config'
+import { pick, playNow, stopAll, usePlaying } from '../audio/player'
 import type { Flight } from '../game/flight'
 import { addedParts, type TopicStates } from '../game/rules'
 import { useGame } from '../hooks/hooks'
@@ -24,6 +25,17 @@ const STILLS: { label: string; flight: Flight }[] = [
   { label: 'Orbit', flight: { phase: 'result', outcome: orbit } },
 ]
 
+/** Every audio file, so it can be played on demand from the toolbar. */
+const SOUNDS: { label: string; src: () => string }[] = [
+  ...[...new Set(Object.values(AUDIO.targeted))].map((src) => ({
+    label: decodeURIComponent(src!.split('/').pop()!.replace('.mp3', '')),
+    src: () => src!,
+  })),
+  ...AUDIO.newPart.map((src, i) => ({ label: `new-part-${i + 1}`, src: () => src })),
+  { label: 'random', src: () => pick(AUDIO.random) },
+  { label: 't-minus', src: () => AUDIO.countdown },
+]
+
 /** The first `n` topics in checklist order get their part added; the rest go back to Waiting. */
 function topicsWithParts(n: number): TopicStates {
   return Object.fromEntries(
@@ -40,6 +52,7 @@ export function DemoToolbar({ flight, onFlight }: DemoToolbarProps) {
   const { topics } = useGame()
   const parts = addedParts(topics).length
   const slot = useForcedSlot()
+  const playing = usePlaying()
   const [open, setOpen] = useState(true)
   const [offset, setOffset] = useState({ x: 0, y: 0 })
   const drag = useRef<{ x: number; y: number; ox: number; oy: number } | null>(null)
@@ -110,6 +123,20 @@ export function DemoToolbar({ flight, onFlight }: DemoToolbarProps) {
                   {o.label}
                 </button>
               ))}
+            </div>
+          </div>
+
+          <div className={s.group} role="group" aria-label="Audio">
+            <span className={s.label}>AUDIO</span>
+            <div className={s.row}>
+              {SOUNDS.map((snd) => (
+                <button key={snd.label} type="button" className={s.chip} onClick={() => playNow(snd.src())}>
+                  ▶ {snd.label}
+                </button>
+              ))}
+              <button type="button" className={`${s.chip} ${playing ? s.on : ''}`} onClick={stopAll} disabled={!playing}>
+                ■ Stop
+              </button>
             </div>
           </div>
 

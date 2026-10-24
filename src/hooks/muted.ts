@@ -22,6 +22,15 @@ export function setMuted(value: boolean) {
   listeners.forEach((l) => l())
 }
 
+/** Current value, for code outside React (the audio player). */
+export const isMuted = () => muted
+
+/** Called whenever the speaker toggle changes. */
+export function onMutedChange(cb: () => void) {
+  listeners.add(cb)
+  return () => listeners.delete(cb)
+}
+
 export function useMuted(): boolean {
   return useSyncExternalStore(
     (cb) => {

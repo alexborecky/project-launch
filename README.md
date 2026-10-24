@@ -20,7 +20,13 @@ npm test         # unit tests for the game logic
 - System Status shows **SYNCED** when the screen is connected, or **OFFLINE** with "LINK DOWN". Offline, the board keeps showing the last known progress, and changes wait until the connection is back.
 - With `npm run dev`, and in the demo, progress is saved only in that browser.
 - After the countdown, the camera view plays a 10-second launch clip from `public/videos/`: `launch-success.mp4` when the rocket reaches orbit, `launch-failed.mp4` for any failure. The result appears when the clip ends. Every screen plays it from the same moment.
-- Press the speaker button to mute the "Hello, World" transmissions and the launch clip's sound. Click the waveform to play one right away.
+- Radio messages from `public/audio/` play in Communications, one at a time:
+  - When someone starts a topic, its message plays 5–10 seconds later, if it has one (see `AUDIO.targeted` in `src/config.ts`).
+  - When a part is added, one of the `new-part-` messages plays.
+  - Every 30–90 seconds, random chatter from `audio/random/` plays.
+  - The launch countdown (5, 4, 3, 2, 1) is timed to `t-minus-countdown.mp3`.
+  - Click the waveform to play random chatter right away.
+- The speaker button mutes all radio audio and the launch clip's sound. Click the waveform to play one right away.
 - Click the radar to add a contact.
 
 ## Shared saving on Netlify
@@ -68,6 +74,7 @@ The demo is the same app with a floating **DEMO** toolbar. You can drag it by it
 
 - **Parts:** 0–12 builds the rocket instantly. Each number marks that many topics, in checklist order, as Part Added.
 - **Time:** Clock follows Prague time, or pick Day, Dusk or Night.
+- **Audio:** play any radio message on demand, or stop it.
 - **Launch:** still frames of each launch state (countdown, ignition, climb, explosion and each result). The real Launch button works too.
 
 In the demo, the launch is always unlocked and god mode is on. It saves its own data, separate from the real board, so playing with it never changes the hackathon state.

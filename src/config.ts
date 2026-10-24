@@ -139,8 +139,46 @@ export const LAUNCH_VIDEO = {
   boomAtMs: 5200,
 }
 
-/** Every 25 to 60 seconds. */
-export const VOICE = { text: 'Hello, World', minGapMs: 25_000, maxGapMs: 60_000, pitch: 0.7, rate: 0.85 }
+/**
+ * Radio audio in public/audio/. One file plays at a time; they queue up.
+ * - `targeted`: plays 5–10 s after someone starts that topic. Topics without a file stay silent.
+ * - `newPart`: one of these plays when a part is added to the rocket.
+ * - `random`: background chatter at random moments.
+ * - `countdown`: plays with the launch countdown (see LAUNCH_COUNTDOWN).
+ */
+const AUDIO_DIR = `${PUBLIC}audio`
+export const AUDIO = {
+  targeted: {
+    engine: `${AUDIO_DIR}/targeted/headless-api.mp3`,
+    tank: `${AUDIO_DIR}/targeted/assign-weights.mp3`,
+    body: `${AUDIO_DIR}/targeted/color-scheme.mp3`,
+    paint: `${AUDIO_DIR}/targeted/color-scheme.mp3`,
+    window: `${AUDIO_DIR}/targeted/template-versioning.mp3`,
+    nose: `${AUDIO_DIR}/targeted/sofa-3g.mp3`,
+    boosterR: `${AUDIO_DIR}/targeted/grpc-layer.mp3`,
+  } as Partial<Record<PartId, string>>,
+  newPart: [1, 2, 3].map((n) => `${AUDIO_DIR}/targeted/new-part-${n}.mp3`),
+  random: [
+    'Indistinct_radio_cha_#1-1792869203633.mp3',
+    'Indistinct_radio_cha_#2-1792869211332.mp3',
+    'Indistinct_radio_cha_#3-1792869219743.mp3',
+    'Indistinct_radio_cha_#4-1792869221656.mp3',
+  ].map((f) => `${AUDIO_DIR}/random/${encodeURIComponent(f)}`),
+  countdown: `${AUDIO_DIR}/targeted/t-minus-countdown.mp3`,
+  targetedDelayMs: [5_000, 10_000],
+  newPartDelayMs: 800,
+  randomGapMs: [30_000, 90_000],
+}
+
+/**
+ * The launch countdown, timed to t-minus-countdown.mp3 ("T-minus five, four, three, two, one, liftoff").
+ * `marksMs`: when 5, 4, 3, 2 and 1 appear. `liftoffMs`: when the launch clip starts.
+ * Measured from the audio's loudness; nudge these if the numbers and the voice drift apart.
+ */
+export const LAUNCH_COUNTDOWN = {
+  marksMs: [0, 2400, 3600, 4850, 5850],
+  liftoffMs: 6300,
+}
 
 export const SYSTEM_STATUS = [
   ['CORE API', 'ONLINE'],

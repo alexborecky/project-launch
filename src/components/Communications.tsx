@@ -1,7 +1,8 @@
 import { useCallback, useRef } from 'react'
-import { COMMS } from '../config'
+import { AUDIO, COMMS } from '../config'
+import { pick, playNow, usePlaying } from '../audio/player'
 import { useFrame } from '../hooks/hooks'
-import { useVoice } from '../hooks/useVoice'
+import { setMuted, useMuted } from '../hooks/muted'
 import liveDot from '../assets/figma/live-dot.svg'
 import speakerOn from '../assets/figma/speaker.svg'
 import speakerOff from '../assets/speaker-off.svg'
@@ -19,7 +20,9 @@ const BARS: [number, string][] = [
 ]
 
 export function Communications({ reducedMotion }: { reducedMotion: boolean }) {
-  const { muted, setMuted, speaking, speak } = useVoice()
+  const muted = useMuted()
+  const speaking = usePlaying()
+  const speak = () => playNow(pick(AUDIO.random))
   const bars = useRef<(HTMLSpanElement | null)[]>([])
 
   const animate = useCallback((t: number) => {
