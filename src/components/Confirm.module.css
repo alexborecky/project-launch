@@ -13,9 +13,10 @@
 
 .title {
   margin: 0 0 10px;
+  font-family: var(--font-display);
   font-size: 13px;
   font-weight: 600;
-  letter-spacing: 0.78px;
+  letter-spacing: 0.26px;
   text-transform: uppercase;
 }
 

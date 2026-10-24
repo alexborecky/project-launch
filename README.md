@@ -1,4 +1,4 @@
-# Project Hack: launch control
+# Project Launch: launch control
 
 The big-screen launch control board for the two-day team hackathon. Twelve topics each add a hidden part to a rocket. The rocket launches on **Tuesday 27 October 2026 at 17:00 Prague time**.
 

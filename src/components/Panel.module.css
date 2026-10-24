@@ -18,9 +18,10 @@
 
 .title {
   margin: 0;
+  font-family: var(--font-display);
   font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.78px;
+  font-weight: 500;
+  letter-spacing: 0.26px;
   white-space: nowrap;
 }
 
@@ -47,5 +48,5 @@
 }
 
 .kvLabel { color: var(--c-muted); }
-.kvValue { color: var(--c-text); font-weight: 500; }
-.kvValueAccent { color: var(--c-accent-soft); font-weight: 500; }
+.kvValue { color: var(--c-text); }
+.kvValueAccent { color: var(--c-accent-soft); }

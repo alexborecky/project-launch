@@ -25,7 +25,10 @@
   /* status */
   --c-go: #2ae219;          /* Part Added */
 
-  --font: 'Geist Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  /* Text */
+  --font: 'Tektur', system-ui, sans-serif;
+  /* Titles, headings, key values */
+  --font-display: 'Orbitron', 'Tektur', system-ui, sans-serif;
 
   --radius-panel: 10px;
   --radius-chip: 6px;

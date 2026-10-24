@@ -21,9 +21,11 @@
 
 .name {
   margin: 0;
+  font-family: var(--font-display);
   font-size: 22px;
   font-weight: 700;
-  letter-spacing: -0.22px;
+  letter-spacing: 0.44px;
+  text-transform: uppercase;
 }
 
 .sub {
@@ -47,7 +49,7 @@
   white-space: nowrap;
 }
 
-.godLabel { color: var(--c-accent-soft); }
+.godLabel { font-family: var(--font-display); font-weight: 600; color: var(--c-accent-soft); }
 
 .reset {
   padding: 5px 10px;
@@ -84,6 +86,7 @@
 }
 
 .chipValue {
+  font-family: var(--font-display);
   font-size: 11.5px;
   font-weight: 600;
   letter-spacing: 0.69px;
@@ -135,6 +138,7 @@
 @keyframes pop-in { from { opacity: 0; transform: translateY(-4px); } }
 
 .popTitle {
+  font-family: var(--font-display);
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.84px;

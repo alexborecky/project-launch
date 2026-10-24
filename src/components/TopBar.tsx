@@ -18,7 +18,7 @@ export function TopBar({ now, status, godMode, onReset, onFullReset }: TopBarPro
   return (
     <header className={s.bar}>
       <div className={s.brand}>
-        <h1 className={s.name}>Project Hack</h1>
+        <h1 className={s.name}>Project Launch</h1>
         <div className={s.sub}>
           <span>LAUNCH CONTROL SYSTEM</span>
           <span>OPERATIONAL</span>

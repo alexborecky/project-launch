@@ -1,4 +1,4 @@
-# Project Hack launch control: context for Claude
+# Project Launch (launch control board): context for Claude
 
 A standalone big-screen web app for a two-day team hackathon. It is not part of SOFA or CMS4, and none of their rules apply. The owner is Alex, Design Lead at Shoptet. Alex is a designer: explain things in plain language, and ask before anything that can't be undone, before installing any package, before committing, and before pushing or deploying (nothing is pushed or deployed until Alex asks).
 
@@ -8,10 +8,12 @@ A standalone big-screen web app for a two-day team hackathon. It is not part of 
 - All Figma assets are downloaded into `src/assets/figma/`. Never use temporary Figma URLs at runtime.
 
 ## Stack (agreed)
-Vite + React + TypeScript, plain CSS modules and CSS variables, no UI or CSS framework. Packages added beyond the template: `vitest` (logic tests only) and `@fontsource/geist-mono` (self-hosted font). Lint is oxlint (from the template). Node 24 on Alex's machine.
+Vite + React + TypeScript, plain CSS modules and CSS variables, no UI or CSS framework. Packages added beyond the template: `vitest` (logic tests only), `@fontsource/orbitron` and `@fontsource/tektur` (self-hosted fonts), `@netlify/blobs` and `netlify-cli` (dev). Lint is oxlint (from the template). Node 24 on Alex's machine.
 
 ## Decisions
 - Layout: the board is laid out at 1440 × 900 and scaled to the window height. Extra width goes to the centre column. Below a 0.78 scale the panels stack and the page scrolls (`useFit` in `Board.tsx`).
+- Name: **Project Launch** (renamed from Project Hack on 24 Oct 2026). Internal storage keys stay `project-hack:*` so saved progress isn't lost.
+- Fonts (Figma frame 22:1383): titles and headings use Orbitron (`--font-display`): brand, panel titles, deck labels, chip values, MODE value, Launch button, countdown digit, result and dialog titles. Everything else uses Tektur (`--font`), including the elements Figma left in Geist Mono (task numbers, compass, pitch scale, zoom). Packages: `@fontsource/orbitron`, `@fontsource/tektur`; Geist Mono was removed.
 - Part Added status is green (`--c-go`, #2AE219). It's the only green in the UI. The topic name stays orange.
 - Complete reset: double-click the Mission ID chip to open a confirm popover (click away or Esc closes it). It works in any mode. God mode's Reset button still uses the dialog.
 - Checklist: each row is an accordion. Clicking it opens the row's actions for its current state underneath. Actions keep it open, so the next step appears right away. It closes when you click the row again, click anywhere else, or press Esc. Clicks in the confirm dialog don't close it. One row is open at a time. Hack topics finish with Kill / Continue / Backlog, all styled the same. **Kill is never shown as a failure.** "Remove part" uses the HUD confirm dialog.

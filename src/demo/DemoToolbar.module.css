@@ -32,6 +32,7 @@
 .grip:active { cursor: grabbing; }
 
 .title {
+  font-family: var(--font-display);
   color: var(--c-accent-soft);
   font-weight: 600;
   letter-spacing: 1px;
