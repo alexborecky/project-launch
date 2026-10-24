@@ -58,69 +58,58 @@ interface TaskRowProps {
   onToggle: (open: boolean) => void
 }
 
-/** Figma component "HUD/Task Row" (17:348). */
+/** Figma component "HUD/Task Row" (17:348), opening as an accordion with the actions for its current state. */
 function TaskRow({ index, topic, state, open, disabled, onToggle }: TaskRowProps) {
   const status = state?.status ?? 'waiting'
+  const itemRef = useRef<HTMLLIElement>(null)
   const rowRef = useRef<HTMLButtonElement>(null)
-  const menuRef = useRef<HTMLDivElement>(null)
   const confirm = useConfirm()
 
+  // Clicking anywhere outside this item closes it. Clicks in the confirm dialog don't count.
   useEffect(() => {
     if (!open) return
-    menuRef.current?.querySelector<HTMLButtonElement>('[role="menuitem"]')?.focus()
+    itemRef.current?.scrollIntoView({ block: 'nearest' })
     const onDown = (e: PointerEvent) => {
-      if (!menuRef.current?.contains(e.target as Node) && !rowRef.current?.contains(e.target as Node)) onToggle(false)
+      const target = e.target as Element
+      if (itemRef.current?.contains(target) || target.closest('dialog')) return
+      onToggle(false)
     }
     document.addEventListener('pointerdown', onDown)
     return () => document.removeEventListener('pointerdown', onDown)
   }, [open, onToggle])
 
+  // Actions keep the item open, so the next step is right there.
   const act = async (action: TopicAction) => {
     if (action.type === 'remove') {
-      onToggle(false)
       const ok = await confirm({
         title: 'Take the part off?',
         message: `“${topic.name}” goes back to Done and its part leaves the rocket.`,
         confirmLabel: 'Remove part',
       })
-      rowRef.current?.focus()
       if (!ok) return
     }
     const next = nextTopicState(topic, state, action)
     if (next) store.setTopic(topic.part, next)
-    onToggle(false)
-    rowRef.current?.focus()
   }
 
-  const onMenuKey = (e: KeyboardEvent) => {
-    const items = [...(menuRef.current?.querySelectorAll<HTMLButtonElement>('[role="menuitem"]') ?? [])]
-    const i = items.indexOf(document.activeElement as HTMLButtonElement)
-    if (e.key === 'Escape') {
+  const onKeyDown = (e: KeyboardEvent) => {
+    if (e.key === 'Escape' && open) {
       e.preventDefault()
       onToggle(false)
       rowRef.current?.focus()
-    } else if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
-      e.preventDefault()
-      items[(i + 1) % items.length]?.focus()
-    } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
-      e.preventDefault()
-      items[(i - 1 + items.length) % items.length]?.focus()
-    } else if (e.key === 'Tab') {
-      onToggle(false)
     }
   }
 
-  const menuId = `task-menu-${topic.part}`
+  const panelId = `task-panel-${topic.part}`
 
   return (
-    <li className={s.item}>
+    <li ref={itemRef} className={`${s.item} ${open ? s.itemOpen : ''}`} onKeyDown={onKeyDown}>
       <button
         ref={rowRef}
         type="button"
         className={`${s.row} ${s[status]} ${open ? s.open : ''}`}
-        aria-haspopup="menu"
         aria-expanded={open}
-        aria-controls={open ? menuId : undefined}
+        aria-controls={panelId}
         disabled={disabled}
         onClick={() => onToggle(!open)}
       >
@@ -132,37 +121,37 @@ function TaskRow({ index, topic, state, open, disabled, onToggle }: TaskRowProps
       </button>
 
       {open && (
-        <div ref={menuRef} id={menuId} className={s.menu} role="menu" aria-label={`Next step for ${topic.name}`} onKeyDown={onMenuKey}>
-          <p className={s.menuTitle}>NEXT STEP</p>
-          {status === 'waiting' && <MenuItem onClick={() => act({ type: 'start' })}>Start work</MenuItem>}
-          {status === 'progress' && topic.track === 'crunch' && (
-            <MenuItem onClick={() => act({ type: 'finish' })}>Mark done</MenuItem>
-          )}
+        <div id={panelId} className={s.panelBody} role="group" aria-label={`Actions for ${topic.name}`}>
+          {status === 'waiting' && <Action onClick={() => act({ type: 'start' })}>Start work</Action>}
+          {status === 'progress' && topic.track === 'crunch' && <Action primary onClick={() => act({ type: 'finish' })}>Mark done</Action>}
           {status === 'progress' && topic.track === 'hack' && (
             <>
-              <p className={s.menuHint}>Done. What happens next?</p>
-              <div className={s.decisions}>
+              <p className={s.hint}>Done? Pick what happens next:</p>
+              <div className={s.actions}>
                 {DECISIONS.map((d) => (
-                  <MenuItem key={d.id} chip onClick={() => act({ type: 'finish', decision: d.id })}>
+                  <Action key={d.id} chip onClick={() => act({ type: 'finish', decision: d.id })}>
                     {d.label}
-                  </MenuItem>
+                  </Action>
                 ))}
               </div>
             </>
           )}
-          {status === 'done' && (
-            <MenuItem primary onClick={() => act({ type: 'add' })}>Add part to rocket</MenuItem>
+          {status === 'done' && <Action primary onClick={() => act({ type: 'add' })}>Add part to rocket</Action>}
+          {status === 'added' && (
+            <>
+              <p className={s.hint}>This part is on the rocket.</p>
+              <Action onClick={() => act({ type: 'remove' })}>Remove part…</Action>
+            </>
           )}
-          {status === 'added' && <MenuItem onClick={() => act({ type: 'remove' })}>Remove part…</MenuItem>}
         </div>
       )}
     </li>
   )
 }
 
-function MenuItem({ children, onClick, primary, chip }: { children: string; onClick: () => void; primary?: boolean; chip?: boolean }) {
+function Action({ children, onClick, primary, chip }: { children: string; onClick: () => void; primary?: boolean; chip?: boolean }) {
   return (
-    <button type="button" role="menuitem" className={`${s.menuItem} ${primary ? s.primary : ''} ${chip ? s.chip : ''}`} onClick={onClick}>
+    <button type="button" className={`${s.action} ${primary ? s.primary : ''} ${chip ? s.chip : ''}`} onClick={onClick}>
       {children}
     </button>
   )

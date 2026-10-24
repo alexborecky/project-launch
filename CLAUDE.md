@@ -12,7 +12,7 @@ Vite + React + TypeScript, plain CSS modules and CSS variables, no UI or CSS fra
 
 ## Decisions
 - Layout: the board is laid out at 1440 × 900 and scaled to the window height. Extra width goes to the centre column. Below a 0.78 scale the panels stack and the page scrolls (`useFit` in `Board.tsx`).
-- Checklist: the whole row is a button that opens a small menu with only the next step. Hack topics finish with Kill / Continue / Backlog, all styled the same. **Kill is never shown as a failure.** "Remove part" uses the HUD confirm dialog.
+- Checklist: each row is an accordion. Clicking it opens the row's actions for its current state underneath. Actions keep it open, so the next step appears right away. It closes when you click the row again, click anywhere else, or press Esc. Clicks in the confirm dialog don't close it. One row is open at a time. Hack topics finish with Kill / Continue / Backlog, all styled the same. **Kill is never shown as a failure.** "Remove part" uses the HUD confirm dialog.
 - Defaults Alex accepted for open questions:
   - "ALL GREEN" stays orange.
   - The clock shows the real UTC offset.

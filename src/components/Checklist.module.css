@@ -65,65 +65,72 @@
 }
 
 .chevron {
-  width: 0;
-  overflow: hidden;
-  margin-left: -10px;
+  width: 8px;
   color: var(--c-muted);
   font-size: 12px;
-  transition: width 0.12s, margin 0.12s;
+  opacity: 0;
+  transition: transform 0.15s, opacity 0.15s;
 }
 
 .row:hover:not(:disabled) .chevron,
 .row:focus-visible .chevron,
-.open .chevron { width: 8px; margin-left: 0; }
+.open .chevron { opacity: 1; }
+
+.open .chevron { transform: rotate(90deg); color: var(--c-accent-soft); }
 
 .progress .status, .done .status { color: var(--c-accent-soft); }
 .added .label { color: var(--c-accent-soft); }
 .added .status { color: var(--c-accent); }
 
-.menu {
+/* ---- accordion ---- */
+
+.itemOpen { background: var(--c-raised); }
+
+/* The orange bar runs down the whole open item. */
+.itemOpen::before {
+  content: '';
   position: absolute;
-  z-index: 5;
-  right: 12px;
-  top: 30px;
-  min-width: 200px;
-  padding: 10px;
-  background: var(--c-raised);
-  border: 1px solid var(--c-line);
-  border-radius: var(--radius-chip);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.55);
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--c-accent);
 }
 
-.menuTitle {
-  font-size: 9.5px;
-  letter-spacing: 0.76px;
+.panelBody {
+  padding: 2px 18px 12px 41px; /* lines up with the topic name */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  animation: reveal 0.16s ease-out;
+}
+
+@keyframes reveal {
+  from { opacity: 0; transform: translateY(-4px); }
+}
+
+.hint {
+  font-size: 10.5px;
+  letter-spacing: 0.3px;
   color: var(--c-muted);
 }
 
-.menuHint {
-  font-size: 10.5px;
-  letter-spacing: 0.3px;
-  color: var(--c-text);
-}
+.actions { display: flex; gap: 6px; }
 
-.decisions { display: flex; gap: 6px; }
-
-.menuItem {
-  padding: 8px 10px;
+.action {
+  padding: 7px 12px;
   border: 1px solid var(--c-line);
   border-radius: var(--radius-small);
   background: var(--c-panel);
   font-size: 10.5px;
   letter-spacing: 0.63px;
-  text-align: left;
 }
 
-.menuItem:hover, .menuItem:focus-visible { border-color: var(--c-accent); }
+.action:hover, .action:focus-visible { border-color: var(--c-accent); }
 
-.chip { flex: 1; text-align: center; }
+.chip { min-width: 74px; text-align: center; }
 
 .primary {
   border-color: rgba(226, 83, 25, 0.6);

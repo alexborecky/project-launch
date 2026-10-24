@@ -15,7 +15,7 @@ npm test         # unit tests for the game logic
 
 ## Using the board
 
-- Click a topic in the checklist to see its next step: Start work → Mark done (hack topics choose Kill / Continue / Backlog) → Add part to rocket. A part can be removed again, which asks you to confirm first.
+- Click a topic in the checklist to open it and see its actions: Start work → Mark done (hack topics choose Kill / Continue / Backlog) → Add part to rocket. It stays open while you click through the steps. Click it again, or anywhere else, to close it. A part can be removed again, which asks you to confirm first.
 - Progress is saved in this browser (localStorage).
 - Press the speaker button to mute the "Hello, World" transmissions. Click the waveform to play one right away.
 - Click the radar to add a contact.
