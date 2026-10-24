@@ -54,6 +54,7 @@ Vite + React + TypeScript, plain CSS modules and CSS variables, no UI or CSS fra
   - Changes seen on page load don't count. Every screen with sound plays the cues, laptops included, if they've clicked once.
 - Countdown is 5→1, timed to the countdown audio: `LAUNCH_COUNTDOWN.marksMs` [0, 2400, 3600, 4850, 5850] and `liftoffMs` 6300 (measured from the audio's loudness, not by ear; adjust if the voice and numbers drift). The clip starts at liftoff.
 - Demo toolbar has an Audio row to play every file.
+- Netlify refuses to deploy files with `#` or `?` in their names. The radio-audio deploy failed silently because of this; the chatter files were renamed to `radio-chatter-1..4.mp3`. `scripts/check-filenames.mjs` now fails `npm run build` / `build:netlify` early if a file in `public/` has such a name.
 - Launch clips (`LAUNCH_VIDEO` in config, `src/components/LaunchVideo.tsx`):
   - After the 6.3 s countdown, the success clip (orbit) or the fail clip (pad or lost) plays in the camera view, 10 s long. The game rules are unchanged; Alex chose to keep them.
   - The timeline phases follow the clip: lift-off at 1.5 s, the fail clip's explosion at 5.2 s, and the result when it ends. The trajectory map uses the same timing.

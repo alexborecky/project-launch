@@ -5,13 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "node scripts/check-filenames.mjs && tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
     "test": "vitest run",
     "build:demo": "tsc -b && vite build --mode demo --base ./ --outDir demos --emptyOutDir",
     "preview:demo": "vite preview --outDir demos --port 4174",
-    "build:netlify": "tsc -b && vite build && vite build --mode demo --base ./ --outDir dist/demos",
+    "build:netlify": "node scripts/check-filenames.mjs && tsc -b && vite build && vite build --mode demo --base ./ --outDir dist/demos",
     "netlify": "netlify dev"
   },
   "dependencies": {

@@ -158,12 +158,8 @@ export const AUDIO = {
     boosterR: `${AUDIO_DIR}/targeted/grpc-layer.mp3`,
   } as Partial<Record<PartId, string>>,
   newPart: [1, 2, 3].map((n) => `${AUDIO_DIR}/targeted/new-part-${n}.mp3`),
-  random: [
-    'Indistinct_radio_cha_#1-1792869203633.mp3',
-    'Indistinct_radio_cha_#2-1792869211332.mp3',
-    'Indistinct_radio_cha_#3-1792869219743.mp3',
-    'Indistinct_radio_cha_#4-1792869221656.mp3',
-  ].map((f) => `${AUDIO_DIR}/random/${encodeURIComponent(f)}`),
+  // File names must not contain # or ?, or Netlify refuses the deploy (see scripts/check-filenames.mjs).
+  random: [1, 2, 3, 4].map((n) => `${AUDIO_DIR}/random/radio-chatter-${n}.mp3`),
   countdown: `${AUDIO_DIR}/targeted/t-minus-countdown.mp3`,
   targetedDelayMs: [5_000, 10_000],
   newPartDelayMs: 800,
