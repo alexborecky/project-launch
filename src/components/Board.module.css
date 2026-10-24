@@ -55,6 +55,7 @@
 }
 
 .compact .main {
+  flex: none; /* size to the panels, so the page (and its bottom padding) grows with them */
   flex-wrap: wrap;
   align-content: flex-start;
 }
@@ -75,3 +76,28 @@
 .compact .grow > * { flex: none; max-height: 70vh; }
 
 .compact .deckRow { height: auto; flex-wrap: wrap; }
+
+/* ---- phones: one long column ---- */
+@media (max-width: 640px) {
+  .compact {
+    /* room for the Launch button, which is fixed to the bottom of the screen */
+    padding-bottom: calc(84px + env(safe-area-inset-bottom));
+  }
+
+  .compact .main { flex-direction: column; flex-wrap: nowrap; }
+
+  /* Every box takes just the height it needs (no stretching to fill the screen) */
+  .compact .centre { flex: none; }
+
+  .compact .side { flex: none; width: 100%; }
+
+  /* Camera keeps the design's proportions instead of a tall crop */
+  .compact .centre > section:first-child { height: auto; aspect-ratio: 704 / 541; }
+
+  /* Gauges and radar as one full-width row, Launch Sequence underneath */
+  .compact .deckRow { flex-direction: column; }
+  .compact .deckRow > section { width: 100%; }
+
+  /* The checklist shows in full instead of scrolling inside its box */
+  .compact .grow > * { max-height: none; }
+}

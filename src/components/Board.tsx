@@ -24,14 +24,30 @@ const DESIGN_H = 900
 const MIN_SCALE = 0.78
 
 /** Fits the 1440 × 900 board to the window. Extra width goes to the centre column. */
+/**
+ * The window's layout size. On phones, innerWidth reports the zoomed-out width when the page is wider
+ * than the screen (as the 1440px board is on its first paint), so use the layout viewport instead.
+ */
+const viewport = () => ({
+  w: document.documentElement.clientWidth || innerWidth,
+  h: document.documentElement.clientHeight || innerHeight,
+})
+
+function computeFit() {
+  const { w, h } = viewport()
+  const scale = Math.min(w / DESIGN_W, h / DESIGN_H)
+  const compact = scale < MIN_SCALE
+  return compact ? { scale: 1, width: w, compact } : { scale, width: w / scale, compact }
+}
+
 function useFit() {
-  const [fit, setFit] = useState({ scale: 1, width: DESIGN_W, compact: false })
+  // Worked out before the first paint, so phones never see (and zoom out to) the 1440px board.
+  const [fit, setFit] = useState(computeFit)
   useLayoutEffect(() => {
     const update = () => {
-      const scale = Math.min(innerWidth / DESIGN_W, innerHeight / DESIGN_H)
-      const compact = scale < MIN_SCALE
-      setFit(compact ? { scale: 1, width: innerWidth, compact } : { scale, width: innerWidth / scale, compact })
-      document.body.classList.toggle('compact', compact)
+      const next = computeFit()
+      setFit(next)
+      document.body.classList.toggle('compact', next.compact)
     }
     update()
     // ResizeObserver also catches size changes that don't fire a window resize event.

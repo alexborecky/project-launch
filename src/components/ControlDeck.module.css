@@ -107,3 +107,11 @@
   overflow: visible;
   pointer-events: none;
 }
+
+/* Phones: three 104px gauges in one row need tighter spacing to fit ~360px. */
+@media (max-width: 640px) {
+  .deck {
+    padding: 16px 8px;
+    gap: 4px;
+  }
+}

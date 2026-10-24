@@ -187,3 +187,22 @@
 }
 
 .popReset:hover { background: rgba(226, 83, 25, 0.25); }
+
+/* ---- phones: description hidden; Mission ID, T-minus and Status stacked full width ---- */
+@media (max-width: 640px) {
+  .sub { display: none; }
+
+  .chips {
+    margin-left: 0;
+    width: 100%;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .chip, .missionWrap { width: 100%; }
+
+  /* Label on the left, value (and the status dot) on the right */
+  .chip > :first-child { margin-right: auto; }
+
+  .countdown { text-align: right; }
+}

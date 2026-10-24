@@ -33,3 +33,33 @@
 }
 
 .busy { opacity: 0.45; cursor: progress; }
+
+/* ---- phones: always at the bottom of the screen ---- */
+@media (max-width: 640px) {
+  .button {
+    position: fixed;
+    z-index: 30;
+    left: 8px;
+    right: 8px;
+    bottom: calc(8px + env(safe-area-inset-bottom));
+    width: auto;
+    height: 60px;
+    font-size: 17px;
+    /* Solid colours: content scrolls underneath, so it can't be see-through like on the board */
+    background: #1a100b;
+    box-shadow: 0 -12px 24px rgba(10, 11, 12, 0.85);
+  }
+
+  .locked {
+    opacity: 1;
+    color: rgba(226, 83, 25, 0.4);
+    border-color: rgba(226, 83, 25, 0.25);
+  }
+
+  .locked img { opacity: 0.4; }
+
+  .ready, .return { background: #3a1a0c; }
+  .ready:hover, .return:hover { background: #4a210f; }
+
+  .busy { opacity: 1; color: rgba(255, 138, 82, 0.5); }
+}

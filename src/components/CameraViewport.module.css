@@ -353,3 +353,20 @@
   border: 1px solid rgba(233, 230, 226, 0.2);
   border-radius: var(--radius-small);
 }
+
+/* ---- phones: lighter HUD, overlays centred ---- */
+@media (max-width: 640px) {
+  .heading, .pitch, .zoomRail { display: none; }
+
+  .countdown { left: 50%; }
+
+  .resultSlot {
+    left: 50%;
+    width: auto;
+    max-width: none;
+    right: auto;
+    min-width: calc(100% - 24px);
+  }
+
+  .emptyHint { left: 50%; }
+}

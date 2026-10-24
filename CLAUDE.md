@@ -12,6 +12,13 @@ Vite + React + TypeScript, plain CSS modules and CSS variables, no UI or CSS fra
 
 ## Decisions
 - Layout: the board is laid out at 1440 × 900 and scaled to the window height. Extra width goes to the centre column. Below a 0.78 scale the panels stack and the page scrolls (`useFit` in `Board.tsx`).
+  - `useFit` measures the layout viewport (`documentElement.clientWidth/Height`), not `innerWidth`. Phones report the zoomed-out width otherwise and get stuck on the 1440px board. It's worked out before the first paint.
+  - Phones (≤ 640px), as Alex asked:
+    - Top-bar chips stacked full width; the "Launch control system / operational" description hidden.
+    - One long column: camera, gauges row, Launch Sequence, checklist, conditions, status, map, comms.
+    - Camera keeps 704:541 proportions; compass, pitch scale and zoom rail hidden; countdown and result panel centred.
+    - Launch button fixed to the bottom with solid colours, and the page gets bottom padding so nothing hides behind it.
+  - In any stacked layout the trajectory map is 320px tall.
 - Name: **Project Launch** (renamed from Project Hack on 24 Oct 2026). Internal storage keys stay `project-hack:*` so saved progress isn't lost.
 - Fonts (Figma frame 22:1383): titles and headings use Orbitron (`--font-display`): brand, panel titles, deck labels, chip values, MODE value, Launch button, countdown digit, result and dialog titles. Everything else uses Tektur (`--font`), including the elements Figma left in Geist Mono (task numbers, compass, pitch scale, zoom). Packages: `@fontsource/orbitron`, `@fontsource/tektur`; Geist Mono was removed.
 - Part Added status is green (`--c-go`, #2AE219). It's the only green in the UI. The topic name stays orange.

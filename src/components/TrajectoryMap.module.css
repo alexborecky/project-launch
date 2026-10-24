@@ -166,3 +166,9 @@
 @keyframes arrived {
   50% { filter: drop-shadow(0 0 6px var(--c-accent)); transform: scale(1.25); }
 }
+
+/* When the panels stack (small screens), the map has no column height to fill: give it the design's height. */
+:global(body.compact) .canvas {
+  flex: none;
+  height: 320px;
+}
