@@ -4,7 +4,7 @@ import { AUDIO, TOPICS } from '../config'
 import type { GameData } from '../game/actions'
 import { statusOf, type TopicStates } from '../game/rules'
 import { store } from '../store/store'
-import { phases } from '../game/timeline'
+import { COUNTDOWN_AT, phases } from '../game/timeline'
 import { enqueue, holdForLaunch, isHeld, isPlaying, pick, playNow } from './player'
 
 const between = ([min, max]: number[]) => min + Math.random() * (max - min)
@@ -26,8 +26,8 @@ function nextNewPart(): string {
 /**
  * - A topic moves from Waiting to In Progress → its message plays 2 s later (if it has one).
  * - A part is added → the next "new part" message in turn (1, 2, 3, 1…). Many parts at once (demo) → just one.
- * - A launch starts → the radio goes quiet until the launch clip ends; the countdown voice plays
- *   (unless this screen joined late). Messages triggered meanwhile wait and play afterwards.
+ * - A launch starts → the radio goes quiet until the launch clip ends (film → countdown → clip);
+ *   the countdown voice plays when the film ends (unless this screen joined late). Messages triggered meanwhile wait and play afterwards.
  * Only one sound ever plays at a time.
  * - About every 20 minutes (18–22) → random radio chatter, if nothing else is playing.
  * Changes seen when the page first loads don't count, so a refresh stays quiet.
@@ -63,10 +63,17 @@ export function useAudioCues(game: GameData) {
     const elapsed = store.serverNow() - launch.at
     const remaining = phases(launch).resultAt - elapsed
     if (remaining <= 0) return // an old launch, already over
-    holdForLaunch(true)
-    if (elapsed < 1500) playNow(AUDIO.countdown, Math.max(0, elapsed) / 1000, { launch: true })
+    holdForLaunch(true) // the film, countdown voice and launch clip each have their own sound
+    // Countdown voice starts when the film ends (skipped if this screen joins more than 1.5 s into it).
+    const intoCountdown = elapsed - COUNTDOWN_AT
+    const countdown = setTimeout(
+      () => playNow(AUDIO.countdown, Math.max(0, intoCountdown) / 1000, { launch: true }),
+      Math.max(0, -intoCountdown),
+    )
+    if (intoCountdown > 1500) clearTimeout(countdown)
     const release = setTimeout(() => holdForLaunch(false), remaining)
     return () => {
+      clearTimeout(countdown)
       clearTimeout(release)
       holdForLaunch(false) // returned to the pad or reset
     }

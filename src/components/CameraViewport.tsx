@@ -1,5 +1,6 @@
-import { CAMERA_SLOTS, LAUNCH_VIDEO, PHOTO_SIZE, TOPICS, VIABILITY } from '../config'
+import { CAMERA_SLOTS, LAUNCH_FILM, LAUNCH_VIDEO, PHOTO_SIZE, TOPICS, VIABILITY } from '../config'
 import { climbFor, modeLabel, resultText, type Flight } from '../game/flight'
+import { VIDEO_AT } from '../game/timeline'
 import { cameraSlotAt, formatClock, utcOffsetLabel, wallClock } from '../game/time'
 import { Rocket } from '../rocket/Rocket'
 import { useForcedSlot } from '../demo/demo'
@@ -22,17 +23,21 @@ interface CameraViewportProps {
   flight: Flight
   /** Parts on the rocket; each one shows the next construction layer. */
   layers: number
-  /** Server time the launch clip started, or null for still frames (demo toolbar). */
-  videoStart: number | null
+  /** Server time the launch was pressed, or null for still frames (demo toolbar). */
+  launchStart: number | null
   reducedMotion: boolean
 }
 
 /** Where in the clip a still frame sits, for the demo toolbar's launch stills. */
 const STILL_AT: Partial<Record<Flight['phase'], number>> = { ignition: 800, climb: 3500, boom: 6500, result: LAUNCH_VIDEO.durationMs }
 
+/** Phones only fetch the film when it plays, instead of preloading ~28 MB. */
+const FILM_PRELOAD = typeof matchMedia !== 'undefined' && matchMedia('(max-width: 640px)').matches ? 'metadata' : 'auto'
+
 const pct = (v: number, of: number) => `${(v / of) * 100}%`
 
-export function CameraViewport({ now, flight, layers, videoStart, reducedMotion }: CameraViewportProps) {
+export function CameraViewport({ now, flight, layers, launchStart, reducedMotion }: CameraViewportProps) {
+  const videoStart = launchStart == null ? null : launchStart + VIDEO_AT
   const forced = useForcedSlot() // demo toolbar or ?camera=
   const slot = CAMERA_SLOTS.find((c) => c.id === forced) ?? cameraSlotAt(wallClock(now).hour, wallClock(now).minute)
   const outcome = 'outcome' in flight ? flight.outcome : null
@@ -68,7 +73,7 @@ export function CameraViewport({ now, flight, layers, videoStart, reducedMotion 
               }}
               layers={flight.phase === 'empty' ? 0 : layers}
               flame={burning}
-              smoke={flight.phase !== 'idle' && flight.phase !== 'empty' && flight.phase !== 'countdown'}
+              smoke={['ignition', 'climb', 'boom', 'result'].includes(flight.phase)}
               shake={burning || flight.phase === 'empty'}
               rise={climbing ? climb.rise : 0}
               riseMs={climbing ? climb.ms : 0}
@@ -78,6 +83,17 @@ export function CameraViewport({ now, flight, layers, videoStart, reducedMotion 
           </div>
         ))}
       </div>
+
+      {/* A launch opens with the short film, full screen in the camera view. */}
+      <LaunchVideo
+        src={LAUNCH_FILM.src}
+        active={flight.phase === 'film'}
+        startedAt={launchStart}
+        stillAt={10_000}
+        durationMs={LAUNCH_FILM.durationMs}
+        reducedMotion={reducedMotion}
+        preload={FILM_PRELOAD}
+      />
 
       {/* After the countdown the matching launch clip takes over the camera view. */}
       {(['success', 'fail'] as const).map((clip) => (

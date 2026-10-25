@@ -19,6 +19,7 @@ npm test         # unit tests for the game logic
 - On the Netlify site, progress is shared: every screen and laptop sees the same board within about 3 seconds. The first change you make on a device asks for the **team code**. Resetting, the go / no-go poll, launching and Return to pad ask for the **admin code**. Codes are remembered on that device. Anyone with the link can watch without a code.
 - System Status shows **SYNCED** when the screen is connected, or **OFFLINE** with "LINK DOWN". Offline, the board keeps showing the last known progress, and changes wait until the connection is back.
 - With `npm run dev`, and in the demo, progress is saved only in that browser.
+- Pressing Launch first plays the 25-second short film (`public/videos/launch-film.mp4`) in the camera view, then the 5…1 countdown.
 - After the countdown, the camera view plays a 10-second launch clip from `public/videos/`: `launch-success.mp4` when the rocket reaches orbit, `launch-failed.mp4` for any failure. The result appears when the clip ends. Every screen plays it from the same moment.
 - Radio messages from `public/audio/` play in Communications, one at a time:
   - Only one sound ever plays at a time. Messages wait their turn, and during a launch (countdown voice, then the clip) the radio stays quiet. Anything triggered meanwhile plays afterwards.
@@ -102,6 +103,14 @@ npm run preview:demo   # serves it at http://localhost:4174
 | Rocket: PNG layers plus flame, smoke and explosion | `src/rocket/Rocket.tsx`, art in `public/rocket-48-construction-layers/` |
 | Design tokens from Figma | `src/styles/tokens.css` |
 | Figma assets | `src/assets/figma/` |
+
+## Videos
+
+`public/videos/` holds web copies only: H.264 `.mp4`, a few MB to ~30 MB each. Keep full-quality originals, like the ProRes `.mov` of the film, in `source-media/`, which git ignores. Browsers can't play ProRes, GitHub refuses files over 100 MB, and everything in `public/` gets copied into each build. To make a web copy on a Mac:
+
+```bash
+avconvert --source source-media/Launch-final-clip.mov --preset Preset1920x1080 --output public/videos/launch-film.mp4 --replace
+```
 
 ## Camera images and the rocket
 

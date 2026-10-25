@@ -16,6 +16,7 @@ const pad = { kind: 'pad', altitudeKm: 0.01, parts: 3 } as const
 const STILLS: { label: string; flight: Flight }[] = [
   { label: 'Pad', flight: { phase: 'idle' } },
   { label: 'Empty', flight: { phase: 'empty' } },
+  { label: 'Film', flight: { phase: 'film', outcome: orbit } },
   { label: 'T-2', flight: { phase: 'countdown', n: 2, outcome: orbit } },
   { label: 'Ignition', flight: { phase: 'ignition', outcome: orbit } },
   { label: 'Climb', flight: { phase: 'climb', outcome: lost } },

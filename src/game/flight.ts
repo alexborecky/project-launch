@@ -4,6 +4,7 @@ import type { Outcome } from './rules'
 export type Flight =
   | { phase: 'idle' }
   | { phase: 'empty' }
+  | { phase: 'film'; outcome: Outcome }
   | { phase: 'countdown'; n: number; outcome: Outcome }
   | { phase: 'ignition'; outcome: Outcome }
   | { phase: 'climb'; outcome: Outcome; /** performance.now() when the climb began */ startedAt?: number }
@@ -27,6 +28,8 @@ export function modeLabel(flight: Flight): string {
     case 'idle':
     case 'empty':
       return 'PRE-LAUNCH'
+    case 'film':
+      return 'BROADCAST'
     case 'countdown':
       return 'COUNTDOWN'
     case 'ignition':

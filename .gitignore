@@ -27,3 +27,7 @@ dist-ssr
 .env
 # Netlify CLI
 .netlify
+
+# Original, full-quality media (too big for git and the web). Web copies live in public/.
+source-media/
+*.mov

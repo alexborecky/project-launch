@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { LaunchRecord } from './actions'
-import { VIDEO_AT, flightAt, phases } from './timeline'
+import { COUNTDOWN_AT, VIDEO_AT, flightAt, phases } from './timeline'
 
 const lost: LaunchRecord = { id: 1, at: 10_000, outcome: { kind: 'lost', altitudeKm: 20, parts: 6, odds: 0.7 } }
 const orbit: LaunchRecord = { id: 2, at: 10_000, outcome: { kind: 'orbit', altitudeKm: 300, parts: 12, extras: 5 } }
@@ -10,12 +10,18 @@ describe('flightAt', () => {
     expect(flightAt(null, 0, 0)).toEqual({ phase: 'idle' })
   })
 
-  it('counts down 5, 4, 3, 2, 1 in step with the countdown audio', () => {
-    expect(flightAt(lost, 10_000, 0)).toMatchObject({ phase: 'countdown', n: 5 })
-    expect(flightAt(lost, 10_000 + 2400, 0)).toMatchObject({ phase: 'countdown', n: 4 })
-    expect(flightAt(lost, 10_000 + 3600, 0)).toMatchObject({ phase: 'countdown', n: 3 })
-    expect(flightAt(lost, 10_000 + 4850, 0)).toMatchObject({ phase: 'countdown', n: 2 })
-    expect(flightAt(lost, 10_000 + 5850, 0)).toMatchObject({ phase: 'countdown', n: 1 })
+  it('opens with the film', () => {
+    expect(flightAt(lost, 10_000, 0)).toMatchObject({ phase: 'film' })
+    expect(flightAt(lost, 10_000 + COUNTDOWN_AT - 1, 0)).toMatchObject({ phase: 'film' })
+  })
+
+  it('then counts down 5, 4, 3, 2, 1 in step with the countdown audio', () => {
+    const c = 10_000 + COUNTDOWN_AT
+    expect(flightAt(lost, c, 0)).toMatchObject({ phase: 'countdown', n: 5 })
+    expect(flightAt(lost, c + 2400, 0)).toMatchObject({ phase: 'countdown', n: 4 })
+    expect(flightAt(lost, c + 3600, 0)).toMatchObject({ phase: 'countdown', n: 3 })
+    expect(flightAt(lost, c + 4850, 0)).toMatchObject({ phase: 'countdown', n: 2 })
+    expect(flightAt(lost, c + 5850, 0)).toMatchObject({ phase: 'countdown', n: 1 })
     expect(flightAt(lost, 10_000 + VIDEO_AT, 0).phase).toBe('ignition')
   })
 

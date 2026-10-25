@@ -56,6 +56,12 @@ Vite + React + TypeScript, plain CSS modules and CSS variables, no UI or CSS fra
 - Countdown is 5→1, timed to the countdown audio: `LAUNCH_COUNTDOWN.marksMs` [0, 2400, 3600, 4850, 5850] and `liftoffMs` 7500 (just after the 7.44 s countdown audio ends, so it doesn't overlap the clip's sound) (measured from the audio's loudness, not by ear; adjust if the voice and numbers drift). The clip starts at liftoff.
 - Demo toolbar has an Audio row to play every file.
 - Netlify refuses to deploy files with `#` or `?` in their names. The radio-audio deploy failed silently because of this; the chatter files were renamed to `radio-chatter-1..4.mp3`. `scripts/check-filenames.mjs` now fails `npm run build` / `build:netlify` early if a file in `public/` has such a name.
+- Launch film (25 Oct 2026): every launch opens with Alex's 25.5 s short film (`LAUNCH_FILM`) in the camera view, then the countdown, then the clip (about 43 s in total).
+  - Flight phase `film`, MODE label "BROADCAST". `COUNTDOWN_AT` = film length; `VIDEO_AT` = COUNTDOWN_AT + liftoff.
+  - The radio holds from the launch press. The countdown voice is scheduled for COUNTDOWN_AT.
+  - Phones only preload the film's metadata.
+  - The web copy (`public/videos/launch-film.mp4`, 27.6 MB H.264) came from `source-media/Launch-final-clip.mov` (ProRes, 331 MB, git-ignored) via `avconvert -p Preset1920x1080`.
+  - Never put originals in `public/`: Vite copies everything there into every build.
 - Launch clips (`LAUNCH_VIDEO` in config, `src/components/LaunchVideo.tsx`):
   - After the 7.5 s countdown, the success clip (orbit) or the fail clip (pad or lost) plays in the camera view, 10 s long. The game rules are unchanged; Alex chose to keep them.
   - The timeline phases follow the clip: lift-off at 1.5 s, the fail clip's explosion at 5.2 s, and the result when it ends. The trajectory map uses the same timing.

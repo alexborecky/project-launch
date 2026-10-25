@@ -13,9 +13,12 @@ interface LaunchVideoProps {
   /** For still frames without a live launch (demo toolbar): where in the clip to show, in ms. */
   stillAt: number
   reducedMotion: boolean
+  /** Length of this clip, ms. */
+  durationMs?: number
+  preload?: 'auto' | 'metadata'
 }
 
-export function LaunchVideo({ src, active, startedAt, stillAt, reducedMotion }: LaunchVideoProps) {
+export function LaunchVideo({ src, active, startedAt, stillAt, reducedMotion, durationMs = LAUNCH_VIDEO.durationMs, preload = 'auto' }: LaunchVideoProps) {
   const video = useRef<HTMLVideoElement>(null)
   const muted = useMuted()
 
@@ -26,7 +29,7 @@ export function LaunchVideo({ src, active, startedAt, stillAt, reducedMotion }: 
       v.pause()
       return
     }
-    const end = LAUNCH_VIDEO.durationMs / 1000 - 0.05
+    const end = durationMs / 1000 - 0.05
     const elapsed = startedAt == null ? null : (store.serverNow() - startedAt) / 1000
     // Still frame: demo stills, a launch that already ended, or reduced motion.
     if (elapsed == null || elapsed >= end || reducedMotion) {
@@ -43,7 +46,7 @@ export function LaunchVideo({ src, active, startedAt, stillAt, reducedMotion }: 
     })
     // Muting mid-clip is handled below, so `muted` isn't a dependency here.
     // oxlint-disable-next-line react/exhaustive-deps
-  }, [active, startedAt, stillAt, reducedMotion])
+  }, [active, startedAt, stillAt, reducedMotion, durationMs])
 
   useEffect(() => {
     if (video.current && muted) video.current.muted = true
@@ -54,7 +57,7 @@ export function LaunchVideo({ src, active, startedAt, stillAt, reducedMotion }: 
       ref={video}
       className={`${s.video} ${active ? s.on : ''}`}
       src={src}
-      preload="auto"
+      preload={preload}
       playsInline
       aria-hidden={!active}
     />

@@ -127,6 +127,15 @@ export const CAMERA_SLOTS = [
 ] as const
 
 /**
+ * The short film that opens every launch, before the countdown. Web copy of
+ * source-media/Launch-final-clip.mov (ProRes, 331 MB, not in git), made with macOS avconvert (H.264 1080p).
+ */
+export const LAUNCH_FILM = {
+  src: `${PUBLIC}videos/launch-film.mp4`,
+  durationMs: 25_500,
+}
+
+/**
  * Launch clips, played in the camera view after the countdown. Both are 10 s, 1920 × 1080, with sound.
  * `boomAtMs` is when the rocket explodes in the fail clip; the trajectory map stops there.
  * `liftoffAtMs` is roughly when the rocket leaves the pad in both clips.
