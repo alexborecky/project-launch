@@ -1,4 +1,4 @@
-import { CAMERA_SLOTS, LAUNCH_FILM, LAUNCH_VIDEO, PHOTO_SIZE, TOPICS, VIABILITY } from '../config'
+import { CAMERA_SLOTS, LAUNCH_VIDEO, PHOTO_SIZE, TOPICS, VIABILITY } from '../config'
 import { climbFor, modeLabel, resultText, type Flight } from '../game/flight'
 import { VIDEO_AT } from '../game/timeline'
 import { cameraSlotAt, formatClock, utcOffsetLabel, wallClock } from '../game/time'
@@ -30,9 +30,6 @@ interface CameraViewportProps {
 
 /** Where in the clip a still frame sits, for the demo toolbar's launch stills. */
 const STILL_AT: Partial<Record<Flight['phase'], number>> = { ignition: 800, climb: 3500, boom: 6500, result: LAUNCH_VIDEO.durationMs }
-
-/** Phones only fetch the film when it plays, instead of preloading ~28 MB. */
-const FILM_PRELOAD = typeof matchMedia !== 'undefined' && matchMedia('(max-width: 640px)').matches ? 'metadata' : 'auto'
 
 const pct = (v: number, of: number) => `${(v / of) * 100}%`
 
@@ -83,17 +80,6 @@ export function CameraViewport({ now, flight, layers, launchStart, reducedMotion
           </div>
         ))}
       </div>
-
-      {/* A launch opens with the short film, full screen in the camera view. */}
-      <LaunchVideo
-        src={LAUNCH_FILM.src}
-        active={flight.phase === 'film'}
-        startedAt={launchStart}
-        stillAt={10_000}
-        durationMs={LAUNCH_FILM.durationMs}
-        reducedMotion={reducedMotion}
-        preload={FILM_PRELOAD}
-      />
 
       {/* After the countdown the matching launch clip takes over the camera view. */}
       {(['success', 'fail'] as const).map((clip) => (

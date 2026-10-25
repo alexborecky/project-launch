@@ -16,9 +16,10 @@ interface LaunchVideoProps {
   /** Length of this clip, ms. */
   durationMs?: number
   preload?: 'auto' | 'metadata'
+  className?: string
 }
 
-export function LaunchVideo({ src, active, startedAt, stillAt, reducedMotion, durationMs = LAUNCH_VIDEO.durationMs, preload = 'auto' }: LaunchVideoProps) {
+export function LaunchVideo({ src, active, startedAt, stillAt, reducedMotion, durationMs = LAUNCH_VIDEO.durationMs, preload = 'auto', className }: LaunchVideoProps) {
   const video = useRef<HTMLVideoElement>(null)
   const muted = useMuted()
 
@@ -55,7 +56,7 @@ export function LaunchVideo({ src, active, startedAt, stillAt, reducedMotion, du
   return (
     <video
       ref={video}
-      className={`${s.video} ${active ? s.on : ''}`}
+      className={`${s.video} ${active ? s.on : ''} ${className ?? ''}`}
       src={src}
       preload={preload}
       playsInline

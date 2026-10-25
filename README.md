@@ -19,7 +19,7 @@ npm test         # unit tests for the game logic
 - On the Netlify site, progress is shared: every screen and laptop sees the same board within about 3 seconds. The first change you make on a device asks for the **team code**. Resetting, the go / no-go poll, launching and Return to pad ask for the **admin code**. Codes are remembered on that device. Anyone with the link can watch without a code.
 - System Status shows **SYNCED** when the screen is connected, or **OFFLINE** with "LINK DOWN". Offline, the board keeps showing the last known progress, and changes wait until the connection is back.
 - With `npm run dev`, and in the demo, progress is saved only in that browser.
-- Pressing Launch first plays the 25-second short film (`public/videos/launch-film.mp4`) in the camera view, then the 5…1 countdown.
+- Pressing Launch first plays the 25-second short film (`public/videos/launch-film.mp4`) full screen, on black with no interface. When it ends it closes, and the 5…1 countdown starts on the board.
 - After the countdown, the camera view plays a 10-second launch clip from `public/videos/`: `launch-success.mp4` when the rocket reaches orbit, `launch-failed.mp4` for any failure. The result appears when the clip ends. Every screen plays it from the same moment.
 - Radio messages from `public/audio/` play in Communications, one at a time:
   - Only one sound ever plays at a time. Messages wait their turn, and during a launch (countdown voice, then the clip) the radio stays quiet. Anything triggered meanwhile plays afterwards.

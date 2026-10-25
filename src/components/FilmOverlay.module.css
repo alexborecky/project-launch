@@ -1,0 +1,21 @@
+/* Covers the whole window (above the board, the demo toolbar and dialogs' backdrop). */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: #000;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.4s ease, visibility 0s 0.4s;
+}
+
+.on {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition: opacity 0.4s ease;
+}
+
+/* The whole film is always visible: black bars if the screen's shape differs from 16:9. */
+.film { object-fit: contain; }

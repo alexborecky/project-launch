@@ -1,4 +1,5 @@
 import { Board } from './components/Board'
+import { FilmOverlay } from './components/FilmOverlay'
 import { IS_DEMO } from './demo/demo'
 import { DemoToolbar } from './demo/DemoToolbar'
 import { useAudioCues } from './audio/useAudioCues'
@@ -7,11 +8,13 @@ import { useGame } from './hooks/hooks'
 
 export default function App() {
   const { flight, setOverride, launch, returnToPad } = useLaunch()
-  useAudioCues(useGame())
+  const game = useGame()
+  useAudioCues(game)
 
   return (
     <>
       <Board flight={flight} onLaunch={launch} onReturn={returnToPad} />
+      <FilmOverlay flight={flight} launchStart={game.launch?.at ?? null} />
       {IS_DEMO && <DemoToolbar flight={flight} onFlight={(f) => setOverride(f.phase === 'idle' ? null : f)} />}
     </>
   )

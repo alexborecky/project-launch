@@ -2,7 +2,7 @@
   position: fixed;
   left: 50%;
   top: 8px; /* over the top bar, so the Launch button stays free; drag the grip to move */
-  z-index: 50;
+  z-index: 1100; /* above the full-screen film, so the demo can always be steered */
   padding: 8px 10px 10px;
   background: rgba(26, 29, 32, 0.94);
   backdrop-filter: blur(8px);

@@ -56,7 +56,8 @@ Vite + React + TypeScript, plain CSS modules and CSS variables, no UI or CSS fra
 - Countdown is 5→1, timed to the countdown audio: `LAUNCH_COUNTDOWN.marksMs` [0, 2400, 3600, 4850, 5850] and `liftoffMs` 7500 (just after the 7.44 s countdown audio ends, so it doesn't overlap the clip's sound) (measured from the audio's loudness, not by ear; adjust if the voice and numbers drift). The clip starts at liftoff.
 - Demo toolbar has an Audio row to play every file.
 - Netlify refuses to deploy files with `#` or `?` in their names. The radio-audio deploy failed silently because of this; the chatter files were renamed to `radio-chatter-1..4.mp3`. `scripts/check-filenames.mjs` now fails `npm run build` / `build:netlify` early if a file in `public/` has such a name.
-- Launch film (25 Oct 2026): every launch opens with Alex's 25.5 s short film (`LAUNCH_FILM`) in the camera view, then the countdown, then the clip (about 43 s in total).
+- Launch film (25 Oct 2026): every launch opens with Alex's 25.5 s short film (`LAUNCH_FILM`), then the countdown, then the clip (about 43 s in total).
+  - The film plays full window in `FilmOverlay` (rendered by App, outside the scaled board): `position: fixed`, black, `object-fit: contain`, no UI on top. It closes when the film phase ends. Only the demo toolbar sits above it (z-index 1100), so the demo stays steerable.
   - Flight phase `film`, MODE label "BROADCAST". `COUNTDOWN_AT` = film length; `VIDEO_AT` = COUNTDOWN_AT + liftoff.
   - The radio holds from the launch press. The countdown voice is scheduled for COUNTDOWN_AT.
   - Phones only preload the film's metadata.
