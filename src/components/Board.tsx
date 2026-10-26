@@ -144,7 +144,7 @@ export function Board({ flight, onLaunch, onReturn }: BoardProps) {
         </div>
         <div className={s.side}>
           <div className={s.status}><SystemStatus link={link} /></div>
-          <div className={s.grow}><TrajectoryMap flight={flight} reducedMotion={reducedMotion} /></div>
+          <div className={s.grow}><TrajectoryMap flight={flight} launch={game.launch} reducedMotion={reducedMotion} /></div>
           <div className={s.comms}><Communications reducedMotion={reducedMotion} /></div>
         </div>
       </main>

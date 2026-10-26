@@ -37,6 +37,12 @@ Vite + React + TypeScript, plain CSS modules and CSS variables, no UI or CSS fra
   2. Integrate: launch is viable.
   3. Go / no-go: a manual tick in god mode.
   4. Launch: locked until launch time, ticked after a launch.
+- Odds (changed 26 Oct 2026): every added part counts (base 5% + weights) with or without Headless API. Without the engine the odds are capped at 45% (`ODDS.maxWithoutEngine`), below the 60% needed to launch, so the engine is still required. Before this, no engine meant 0%, which hid all progress on the live board.
+- Trajectory map (26 Oct 2026):
+  - The radar rings and sweep were removed. A pulsing, blinking dot shows the rocket: on PAD 39A before launch, then along the route. Max-Q is a normal milestone.
+  - The map flies its own realistic profile, steady acceleration (`MAP_PROFILE`): stage 1 ≈ 0:37, Max-Q ≈ 0:58, stage 2 ≈ 1:37, orbit at about 3–4 min. A failure stops at its break-up altitude (≈ 30–60 s).
+  - The profile starts at lift-off in the clip. The map keeps flying after the result panel shows; the camera phases still follow the clip (`ascentMs`).
+- Saved progress lives in Netlify Blobs, separately from deploys, so pushing new code never clears it. Keep `GameData` compatible: add fields with defaults; never rename or remove them.
 - Rocket art (since 24 Oct 2026):
   - It's 12 PNG construction layers per lighting set, in `public/rocket-48-construction-layers/` (256 × 1536 canvas). It replaced the old SVG parts.
   - The build is linear: N parts added means layers 1..N show, whichever topics they came from. The odds and the hidden weights per topic are unchanged.

@@ -13,8 +13,19 @@ const seq = (...values: number[]) => {
 const topic = (part: PartId) => TOPICS.find((t) => t.part === part)!
 
 describe('odds', () => {
-  it('is 0 without the engine', () => {
-    expect(odds(withAdded('tank', 'fins', 'body', 'paint'))).toBe(0)
+  it('is 0 with no parts on the rocket', () => {
+    expect(odds({})).toBe(0)
+  })
+
+  it('counts every added part, even without the engine', () => {
+    // the live board on 26 Oct: fins + shield
+    expect(odds(withAdded('fins', 'shield'))).toBeCloseTo(0.05 + 0.09 + 0.03)
+  })
+
+  it('stays below the 60% a launch needs without the engine', () => {
+    const all = TOPICS.map((t) => t.part).filter((p) => p !== 'engine')
+    expect(odds(withAdded(...all))).toBe(0.45)
+    expect(isViable(withAdded(...all))).toBe(false)
   })
 
   it('is base + engine weight with only the engine', () => {

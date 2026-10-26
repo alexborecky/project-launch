@@ -19,9 +19,10 @@ export function addedParts(states: TopicStates, topics: Topic[] = TOPICS): Topic
 
 export function odds(states: TopicStates, topics: Topic[] = TOPICS): number {
   const added = addedParts(states, topics)
-  if (!added.some((t) => t.part === REQUIRED_PART)) return 0
+  if (added.length === 0) return 0
   const sum = added.reduce((acc, t) => acc + t.weight, 0)
-  return Math.min(ODDS.max, ODDS.base + sum)
+  const cap = added.some((t) => t.part === REQUIRED_PART) ? ODDS.max : ODDS.maxWithoutEngine
+  return Math.min(cap, ODDS.base + sum)
 }
 
 export function coreAdded(states: TopicStates, topics: Topic[] = TOPICS): number {

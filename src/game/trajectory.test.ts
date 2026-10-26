@@ -1,19 +1,19 @@
 import { describe, expect, it } from 'vitest'
-import { WAYPOINTS, altitudeAt, positionAt, speedAt } from './trajectory'
+import { WAYPOINTS, altitudeAfterMs, positionAt, speedAt, timeToAltitudeMs } from './trajectory'
 
-const orbit = { kind: 'orbit', altitudeKm: 300, parts: 10, extras: 2 } as const
-const lost = { kind: 'lost', altitudeKm: 20, parts: 6, odds: 0.7 } as const
 const at = (id: string) => WAYPOINTS.find((w) => w.id === id)!.at
 
-describe('altitudeAt', () => {
-  it('runs from 0 to the outcome altitude', () => {
-    expect(altitudeAt(orbit, 0)).toBe(0)
-    expect(altitudeAt(orbit, 1)).toBe(300)
-    expect(altitudeAt(lost, 1)).toBe(20)
+describe('map flight profile', () => {
+  it('starts slowly and speeds up, like a real launch', () => {
+    expect(altitudeAfterMs(0)).toBe(0)
+    expect(timeToAltitudeMs(25) / 1000).toBeGreaterThan(50) // Max-Q after about a minute
+    expect(timeToAltitudeMs(25) / 1000).toBeLessThan(70)
+    expect(timeToAltitudeMs(300) / 1000).toBe(200)
   })
 
-  it('climbs faster later on', () => {
-    expect(altitudeAt(orbit, 0.5)).toBeLessThan(150)
+  it('reaches the altitude it was asked for', () => {
+    expect(altitudeAfterMs(timeToAltitudeMs(352))).toBeCloseTo(352)
+    expect(altitudeAfterMs(timeToAltitudeMs(20))).toBeCloseTo(20)
   })
 })
 

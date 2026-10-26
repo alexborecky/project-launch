@@ -33,6 +33,9 @@ npm test         # unit tests for the game logic
 
 ## Shared saving on Netlify
 
+Deploying a new version never clears the board: progress is stored in Netlify Blobs, separately from the code.
+
+
 The Netlify site **project-sofa-launch** keeps the board in Netlify Blobs, Netlify's built-in storage. Two small server functions in `netlify/functions/` read it and change it:
 
 - `GET /api/state` returns the current board. Screens check it every 3 seconds, or every 20 seconds while the tab is in the background.

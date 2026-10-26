@@ -34,7 +34,7 @@ export const TOPICS: Topic[] = [
   { name: 'AI v editoru', track: 'hack', part: 'patch', weight: 0.03, type: 'extra' },
 ]
 
-/** This part must be on the rocket, or the odds are 0. */
+/** Without this part the odds stay below the 60% a launch needs (see ODDS.maxWithoutEngine). */
 export const REQUIRED_PART: PartId = 'engine'
 
 export const TIME_ZONE = 'Europe/Prague'
@@ -45,8 +45,14 @@ export const LAUNCH_AT_PRAGUE = { year: 2026, month: 10, day: 27, hour: 17, minu
 export const MISSION_ID = 'PH-2610-24'
 
 export const ODDS = {
+  /** Added on top of the parts' weights once at least one part is on the rocket. */
   base: 0.05,
   max: 0.97,
+  /**
+   * Without Headless API (the engine) the odds can't go above this. Every added part still shows
+   * progress, but a launch needs 60%, so the engine stays essential.
+   */
+  maxWithoutEngine: 0.45,
 }
 
 export const VIABILITY = {

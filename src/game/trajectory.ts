@@ -20,9 +20,11 @@ export const WAYPOINTS: { id: string; at: Point; km: number }[] = [
   { id: 'orbit', at: { x: 250.16, y: 25.2 }, km: 120 },
 ]
 
-/** How long the climb lasts on the map, in ms. Orbit keeps going after the rocket has left the camera. */
+/**
+ * How long the camera's climb phase lasts, in ms, matched to the launch clips: success climbs until
+ * the clip ends, a failure until the explosion. (The trajectory map flies its own, slower profile.)
+ */
 export function ascentMs(outcome: Outcome): number {
-  // Matches the launch clips: success climbs until the clip ends, a failure until the explosion.
   return outcome.kind === 'orbit'
     ? LAUNCH_VIDEO.durationMs - LAUNCH_VIDEO.liftoffAtMs
     : LAUNCH_VIDEO.boomAtMs - LAUNCH_VIDEO.liftoffAtMs
@@ -33,10 +35,20 @@ export function finalAltitude(outcome: Outcome): number {
   return outcome.kind === 'empty' ? 0 : outcome.altitudeKm
 }
 
-/** Altitude after `progress` (0..1) of the ascent. Starts slow, speeds up. */
-export function altitudeAt(outcome: Outcome, progress: number): number {
-  const p = Math.max(0, Math.min(1, progress))
-  return finalAltitude(outcome) * p ** 1.6
+/**
+ * The map's flight profile: steady acceleration, roughly like a real orbital launch.
+ * Stage 1 (10 km) ≈ 0:37, Max-Q (25 km) ≈ 0:58, stage 2 (70 km) ≈ 1:37, 300 km at 3:20.
+ */
+export const MAP_PROFILE = { refKm: 300, refMs: 200_000 }
+
+/** Altitude (km) `ms` after lift-off. */
+export function altitudeAfterMs(ms: number): number {
+  return MAP_PROFILE.refKm * (Math.max(0, ms) / MAP_PROFILE.refMs) ** 2
+}
+
+/** How long (ms) after lift-off the rocket reaches `km`: its whole flight on the map. */
+export function timeToAltitudeMs(km: number): number {
+  return MAP_PROFILE.refMs * Math.sqrt(Math.max(0, km) / MAP_PROFILE.refKm)
 }
 
 /** A plausible speed for an altitude, in km/s (about 7.8 km/s at orbit). */

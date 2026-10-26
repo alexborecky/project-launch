@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
+import { LAUNCH_VIDEO } from '../config'
+import type { LaunchRecord } from '../game/actions'
 import type { Flight } from '../game/flight'
-import { altitudeAt, ascentMs, positionAt, speedAt, trailTo } from '../game/trajectory'
+import { VIDEO_AT } from '../game/timeline'
+import { altitudeAfterMs, finalAltitude, positionAt, speedAt, timeToAltitudeMs, trailTo } from '../game/trajectory'
+import { store } from '../store/store'
 import earthLimb from '../assets/figma/earth-limb.svg'
 import limbGlow from '../assets/figma/limb-glow.png'
-import ringOuter from '../assets/figma/map-ring-outer.svg'
-import ringInner from '../assets/figma/map-ring-inner.png'
-import mapSweep from '../assets/figma/map-sweep.svg'
 import trajectory from '../assets/figma/trajectory.svg'
 import nodeRing from '../assets/figma/node-ring.svg'
 import nodeDot from '../assets/figma/node-dot.svg'
@@ -23,37 +24,56 @@ const ROWS = Array.from({ length: 11 }, (_, i) => 11 + i * 24)
 
 interface TrajectoryMapProps {
   flight: Flight
+  /** The shared launch record, so every screen flies the same route at the same time. */
+  launch: LaunchRecord | null
   reducedMotion: boolean
 }
 
-/** How far through the climb we are (0..1), or null when the rocket hasn't left the pad. */
-function useAscentProgress(flight: Flight, reducedMotion: boolean): number | null {
-  const [now, setNow] = useState(() => performance.now())
-  const climbing = flight.phase === 'climb' && flight.startedAt != null && !reducedMotion
-  // A plain timer rather than animation frames, so it keeps going even when the tab is in the background.
-  useEffect(() => {
-    if (!climbing) return
-    const id = setInterval(() => setNow(performance.now()), 40)
-    return () => clearInterval(id)
-  }, [climbing])
+/** Where the rocket is on the map: altitude and whether it has finished flying. */
+function useMapFlight(flight: Flight, launch: LaunchRecord | null, reducedMotion: boolean) {
+  const outcome = 'outcome' in flight ? flight.outcome : launch?.outcome ?? null
+  const finalKm = outcome ? finalAltitude(outcome) : 0
+  const flightMs = timeToAltitudeMs(finalKm)
+  // The map starts flying when the rocket leaves the pad in the launch clip.
+  const liftoff = launch ? launch.at + VIDEO_AT + LAUNCH_VIDEO.liftoffAtMs : null
 
-  if (flight.phase === 'boom' || flight.phase === 'result') return 1
-  if (flight.phase !== 'climb') return null
-  if (flight.startedAt == null) return 0.5 // static preview
-  if (reducedMotion) return 1
-  return Math.max(0, Math.min(1, (now - flight.startedAt) / ascentMs(flight.outcome)))
+  const [now, setNow] = useState(() => store.serverNow())
+  const flying = liftoff != null && !reducedMotion
+  // A plain timer rather than animation frames, so it keeps going in a background tab. It stops once landed.
+  useEffect(() => {
+    if (!flying) return
+    const id = setInterval(() => {
+      const t = store.serverNow()
+      setNow(t)
+      if (t - liftoff > flightMs + 500) clearInterval(id)
+    }, 100)
+    return () => clearInterval(id)
+  }, [flying, liftoff, flightMs])
+
+  if (!outcome) return { km: 0, done: false, flying: false }
+  if (liftoff == null) {
+    // Still frames from the demo toolbar
+    if (flight.phase === 'climb') return { km: finalKm / 2, done: false, flying: true }
+    if (flight.phase === 'boom' || flight.phase === 'result') return { km: finalKm, done: true, flying: true }
+    return { km: 0, done: false, flying: false }
+  }
+  const elapsed = now - liftoff
+  if (elapsed < 0) return { km: 0, done: false, flying: false } // film, countdown, ignition: still on the pad
+  if (reducedMotion || elapsed >= flightMs) return { km: finalKm, done: true, flying: true }
+  return { km: altitudeAfterMs(elapsed), done: false, flying: true }
 }
 
-export function TrajectoryMap({ flight, reducedMotion }: TrajectoryMapProps) {
+export function TrajectoryMap({ flight, launch, reducedMotion }: TrajectoryMapProps) {
   const [zoom, setZoom] = useState(0)
-  const progress = useAscentProgress(flight, reducedMotion)
-  const outcome = 'outcome' in flight ? flight.outcome : null
+  const outcome = 'outcome' in flight ? flight.outcome : launch?.outcome ?? null
   const orbitKm = outcome?.kind === 'orbit' ? outcome.altitudeKm : undefined
-  const altitudeKm = outcome && progress != null ? altitudeAt(outcome, progress) : 0
-  const velocityKms = progress != null ? speedAt(altitudeKm) : 0
-  const marker = progress != null ? positionAt(altitudeKm, orbitKm) : null
-  const lost = outcome != null && outcome.kind !== 'orbit' && (flight.phase === 'boom' || flight.phase === 'result')
-  const arrived = outcome?.kind === 'orbit' && flight.phase === 'result'
+  const map = useMapFlight(flight, launch, reducedMotion)
+  const altitudeKm = map.km
+  const velocityKms = map.flying ? speedAt(altitudeKm) : 0
+  // The pulsing dot: on PAD 39A before launch, then riding along the route.
+  const marker = positionAt(altitudeKm, orbitKm)
+  const lost = outcome != null && outcome.kind !== 'orbit' && map.done
+  const arrived = outcome?.kind === 'orbit' && map.done
 
   return (
     <section className={s.panel} aria-label="Trajectory map">
@@ -70,40 +90,33 @@ export function TrajectoryMap({ flight, reducedMotion }: TrajectoryMapProps) {
           <img src={limbGlow} alt="" width={620} height={620} className={s.abs} style={{ left: -150, top: 227 }} />
           <img src={limbGlow} alt="" width={620} height={620} className={s.abs} style={{ left: -150, top: 237 }} />
 
-          <img src={ringOuter} alt="" width={140} height={140} className={s.abs} style={{ left: 96.44, top: 46.9 }} />
-          <img src={ringInner} alt="" width={92} height={92} className={s.abs} style={{ left: 120.44, top: 70.9 }} />
-          <div className={s.sweep} style={{ left: 96.44, top: 46.9 }}>
-            <img src={mapSweep} alt="" width={50.2149} height={70} className={s.abs} style={{ left: 70, top: 0 }} />
-          </div>
-
           <img src={trajectory} alt="" width={322} height={262} className={s.abs} style={{ left: -1, top: -1 }} />
 
           <Node ring={nodeRing} dot={nodeDot} x={68.28} y={207} label="PAD 39A" />
           <Node ring={nodeRing} dot={nodeDot} x={87.6} y={163.92} label="STAGE 1" />
-          <img src={maxqOuter} alt="" width={32} height={32} className={s.abs} style={{ left: 150.44, top: 100.9 }} />
-          <img src={maxqInner} alt="" width={20} height={20} className={s.abs} style={{ left: 156.44, top: 106.9 }} />
-          <img src={maxqDot} alt="" width={23} height={23} className={s.abs} style={{ left: 154.94, top: 105.4 }} />
-          <span className={`${s.nodeLabel} ${s.maxq}`} style={{ left: 188.44, top: 109.9 }}>MAX-Q</span>
+          <Node ring={nodeRing} dot={nodeDot} x={158.94} y={108.9} label="MAX-Q" />
           <Node ring={nodeRingDim} dot={nodeDotDim} x={190.64} y={53.88} label="STAGE 2" dim />
           <img src={target} alt="" width={14} height={14} className={`${s.abs} ${arrived ? s.arrived : ''}`} style={{ left: 243.16, top: 18.2 }} />
           <span className={`${s.nodeLabel} ${s.orbit}`} style={{ left: 262.16, top: 18.2 }}>ORBIT</span>
 
-          {marker && (
+          {map.flying && (
+            <svg className={s.trail} viewBox="0 0 322 262" aria-hidden="true">
+              <polyline points={trailTo(altitudeKm, orbitKm).map((p) => `${p.x},${p.y}`).join(' ')} />
+            </svg>
+          )}
+          {lost ? (
             <>
-              <svg className={s.trail} viewBox="0 0 322 262" aria-hidden="true">
-                <polyline points={trailTo(altitudeKm, orbitKm).map((p) => `${p.x},${p.y}`).join(' ')} />
-              </svg>
-              {lost ? (
-                <span className={s.burst} style={{ left: marker.x, top: marker.y }} aria-hidden="true" />
-              ) : (
-                <img src={maxqDot} alt="" width={23} height={23} className={s.marker} style={{ left: marker.x, top: marker.y }} />
-              )}
-              {lost && flight.phase === 'result' && (
-                <span className={`${s.nodeLabel} ${s.lostLabel}`} style={{ left: marker.x + 12, top: marker.y + 6 }}>
-                  SIGNAL LOST
-                </span>
-              )}
+              <span className={s.burst} style={{ left: marker.x, top: marker.y }} aria-hidden="true" />
+              <span className={`${s.nodeLabel} ${s.lostLabel}`} style={{ left: marker.x + 12, top: marker.y + 6 }}>
+                SIGNAL LOST
+              </span>
             </>
+          ) : (
+            <span className={s.marker} style={{ left: marker.x, top: marker.y }} aria-hidden="true">
+              <img src={maxqOuter} alt="" width={32} height={32} className={s.markerOuter} />
+              <img src={maxqInner} alt="" width={20} height={20} className={s.markerInner} />
+              <img src={maxqDot} alt="" width={23} height={23} className={s.markerDot} />
+            </span>
           )}
         </div>
 
