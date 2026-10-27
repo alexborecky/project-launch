@@ -21,8 +21,7 @@ export function odds(states: TopicStates, topics: Topic[] = TOPICS): number {
   const added = addedParts(states, topics)
   if (added.length === 0) return 0
   const sum = added.reduce((acc, t) => acc + t.weight, 0)
-  const cap = added.some((t) => t.part === REQUIRED_PART) ? ODDS.max : ODDS.maxWithoutEngine
-  return Math.min(cap, ODDS.base + sum)
+  return Math.min(ODDS.max, ODDS.base + sum)
 }
 
 export function coreAdded(states: TopicStates, topics: Topic[] = TOPICS): number {
@@ -30,8 +29,9 @@ export function coreAdded(states: TopicStates, topics: Topic[] = TOPICS): number
 }
 
 export function isViable(states: TopicStates, topics: Topic[] = TOPICS): boolean {
+  const hasEngine = statusOf(states, REQUIRED_PART) === 'added'
   // Small epsilon so 0.6 built from float sums (e.g. 0.05 + 0.55) still counts as 60%.
-  return coreAdded(states, topics) >= VIABILITY.minCoreParts && odds(states, topics) >= VIABILITY.minOdds - 1e-9
+  return hasEngine && coreAdded(states, topics) >= VIABILITY.minCoreParts && odds(states, topics) >= VIABILITY.minOdds - 1e-9
 }
 
 export type Outcome =

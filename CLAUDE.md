@@ -37,7 +37,7 @@ Vite + React + TypeScript, plain CSS modules and CSS variables, no UI or CSS fra
   2. Integrate: launch is viable.
   3. Go / no-go: a manual tick in god mode.
   4. Launch: locked until launch time, ticked after a launch.
-- Odds (changed 26 Oct 2026): every added part counts (base 5% + weights) with or without Headless API. Without the engine the odds are capped at 45% (`ODDS.maxWithoutEngine`), below the 60% needed to launch, so the engine is still required. Before this, no engine meant 0%, which hid all progress on the live board.
+- Odds (changed 26–27 Oct 2026): Progress shows the real total, base 5% + the weights of every added part, up to 97%, with or without Headless API. There's no cap: the 45% cap of 26 Oct hid progress on the live board. Headless API (the engine) is now a direct launch condition in `isViable`, next to 4 of 7 core parts and ≥ 60%. Without it a launch explodes on the pad, and the pad message says it needs its engine.
 - Trajectory map (26 Oct 2026):
   - The radar rings and sweep were removed. A pulsing, blinking dot shows the rocket: on PAD 39A before launch, then along the route. Max-Q is a normal milestone.
   - The map flies its own realistic profile, steady acceleration (`MAP_PROFILE`): stage 1 ≈ 0:37, Max-Q ≈ 0:58, stage 2 ≈ 1:37, orbit at about 3–4 min. A failure stops at its break-up altitude (≈ 30–60 s).

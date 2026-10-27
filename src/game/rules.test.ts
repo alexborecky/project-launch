@@ -22,10 +22,8 @@ describe('odds', () => {
     expect(odds(withAdded('fins', 'shield'))).toBeCloseTo(0.05 + 0.09 + 0.03)
   })
 
-  it('stays below the 60% a launch needs without the engine', () => {
-    const all = TOPICS.map((t) => t.part).filter((p) => p !== 'engine')
-    expect(odds(withAdded(...all))).toBe(0.45)
-    expect(isViable(withAdded(...all))).toBe(false)
+  it('shows the real total without the engine (the live board on 27 Oct: 8 parts = 60%)', () => {
+    expect(odds(withAdded('fins', 'window', 'body', 'tank', 'shield', 'patch', 'antenna', 'boosterR'))).toBeCloseTo(0.6)
   })
 
   it('is base + engine weight with only the engine', () => {
@@ -43,6 +41,13 @@ describe('odds', () => {
 })
 
 describe('isViable', () => {
+  it('needs the engine, even with enough core parts and odds', () => {
+    const live = withAdded('fins', 'window', 'body', 'tank', 'shield', 'patch', 'antenna', 'boosterR')
+    expect(odds(live)).toBeCloseTo(0.6)
+    expect(isViable(live)).toBe(false)
+    expect(isViable({ ...live, ...withAdded('engine') })).toBe(true)
+  })
+
   it('needs 4 of 7 core parts', () => {
     // 3 core, but odds high enough: engine .12 + body .16 + paint .16 + all extras .15 = .64
     expect(isViable(withAdded('engine', 'body', 'paint', 'boosterL', 'boosterR', 'antenna', 'shield', 'patch'))).toBe(false)

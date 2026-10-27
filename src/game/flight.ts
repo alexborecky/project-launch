@@ -49,7 +49,7 @@ export function resultText(outcome: Outcome, totalParts: number, corePartsNeeded
     case 'pad':
       return {
         title: 'EXPLODED ON THE PAD',
-        body: `Not enough of the rocket was ready to survive ignition. It needs ${corePartsNeeded} of ${coreTotal} core parts and at least ${minOddsPct}% odds.`,
+        body: `Not enough of the rocket was ready to survive ignition. It needs its engine, ${corePartsNeeded} of ${coreTotal} core parts and at least ${minOddsPct}% odds.`,
       }
     case 'lost':
       return {
