@@ -144,6 +144,9 @@ export function DemoToolbar({ flight, onFlight }: DemoToolbarProps) {
           <div className={s.group} role="group" aria-label="Launch stills">
             <span className={s.label}>LAUNCH</span>
             <div className={s.row}>
+              <button type="button" className={s.chip} onClick={() => void store.dispatch({ type: 'weatherHold', on: true })}>
+                Weather
+              </button>
               {STILLS.map((st) => {
                 const on = JSON.stringify(st.flight) === stillKey
                 return (

@@ -3,11 +3,12 @@ import { SYSTEM_STATUS } from '../config'
 import type { SyncStatus } from '../store/store'
 import { KvRow, Panel } from './Panel'
 
-export function LaunchConditions({ now, drift }: { now: Date; drift: boolean }) {
-  const c = getConditions(now, drift)
+/** `hold`: bad weather (the weather popup is up), so the panel reads NO GO with strong wind. */
+export function LaunchConditions({ now, drift, launchAt, hold }: { now: Date; drift: boolean; launchAt: number; hold: boolean }) {
+  const c = getConditions(now, drift, launchAt)
   return (
-    <Panel title="LAUNCH CONDITIONS" badge="GO">
-      <KvRow label="WIND" value={`${c.windKmh} km/h  ↗ ${c.windDir}`} />
+    <Panel title="LAUNCH CONDITIONS" badge={hold ? 'NO GO' : 'GO'}>
+      <KvRow label="WIND" value={hold ? `46 km/h  ↗ ${c.windDir}` : `${c.windKmh} km/h  ↗ ${c.windDir}`} accent={hold} />
       <KvRow label="TEMP" value={`${c.tempC} °C`} />
       <KvRow label="HUMIDITY" value={`${c.humidity} %`} />
       <KvRow label="VISIBILITY" value={c.visibility} />

@@ -2,8 +2,10 @@ import { useLayoutEffect, useState } from 'react'
 import { TOPICS } from '../config'
 import type { Flight } from '../game/flight'
 import { addedParts, isViable, odds as oddsOf, statusOf } from '../game/rules'
-import { LAUNCH_AT } from '../game/time'
+import { scheduledLaunchAt } from '../game/actions'
+import { weatherHoldActive } from '../weather/WeatherHold'
 import { useGame, useGodMode, useNow, useReducedMotion, useSyncStatus } from '../hooks/hooks'
+import { store } from '../store/store'
 import { useAct } from '../store/useAct'
 import { CameraViewport } from './CameraViewport'
 import { Checklist } from './Checklist'
@@ -77,7 +79,9 @@ export function Board({ flight, onLaunch, onReturn }: BoardProps) {
   const added = addedParts(game.topics)
   const odds = oddsOf(game.topics)
   const viable = isViable(game.topics)
-  const locked = !godMode && now.getTime() < LAUNCH_AT
+  const launchAt = scheduledLaunchAt(game) // after any weather postponement
+  const weatherHold = weatherHoldActive(game, store.serverNow())
+  const locked = !godMode && store.serverNow() < launchAt
   const inFlight = flight.phase !== 'idle' && flight.phase !== 'empty' && flight.phase !== 'result'
   const launched = flight.phase === 'result'
 
@@ -85,7 +89,7 @@ export function Board({ flight, onLaunch, onReturn }: BoardProps) {
   const status =
     flight.phase === 'result'
       ? flight.outcome.kind === 'orbit' ? 'IN ORBIT' : 'VEHICLE LOST'
-      : inFlight ? 'LAUNCHING' : anyActivity ? 'IN PROGRESS' : 'STANDBY'
+      : inFlight ? 'LAUNCHING' : weatherHold ? 'WEATHER HOLD' : anyActivity ? 'IN PROGRESS' : 'STANDBY'
 
   const steps: Step[] = [
     { label: 'Assemble rocket parts', state: added.length > 0 ? 'checked' : 'pending' },
@@ -120,13 +124,15 @@ export function Board({ flight, onLaunch, onReturn }: BoardProps) {
         now={now}
         status={status}
         godMode={godMode}
+        launchAt={launchAt}
         onReset={reset}
+        onWeatherHold={() => void act({ type: 'weatherHold', on: true })}
         onFullReset={() => void act({ type: 'reset' })}
       />
       <main className={s.main}>
         <div className={s.side}>
           <div className={s.grow}><Checklist locked={inFlight} /></div>
-          <div className={s.conditions}><LaunchConditions now={now} drift={!reducedMotion} /></div>
+          <div className={s.conditions}><LaunchConditions now={now} drift={!reducedMotion} launchAt={launchAt} hold={weatherHold} /></div>
         </div>
         <div className={s.centre}>
           <CameraViewport

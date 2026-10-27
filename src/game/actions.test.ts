@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { EMPTY_GAME, applyAction, type Action, type GameData, type Role } from './actions'
+import { EMPTY_GAME, applyAction, scheduledLaunchAt, type Action, type GameData, type Role } from './actions'
+import { LAUNCH_AT } from './time'
 
 const env = (role: Role = 'admin', random = () => 0.1) => ({ now: 1000, random, role })
 const run = (state: GameData, actions: Action[], role: Role = 'admin') =>
@@ -55,5 +56,28 @@ describe('applyAction', () => {
   it('reset clears everything', () => {
     const s = run(EMPTY_GAME, [{ type: 'setTopics', topics: { engine: { status: 'added' } } }, { type: 'goNoGo', value: true }, { type: 'reset' }])
     expect(s).toMatchObject({ topics: {}, goNoGo: false, launch: null })
+  })
+
+  it('postpones the launch for everyone, and closes the weather popup', () => {
+    const held = run(EMPTY_GAME, [{ type: 'weatherHold', on: true }])
+    expect(held.weatherHold).toBe(true)
+    const r = applyAction(held, { type: 'postpone', minutes: 30 }, { now: LAUNCH_AT - 60_000, random: () => 0, role: 'admin' })
+    expect(r.ok && scheduledLaunchAt(r.state)).toBe(LAUNCH_AT + 30 * 60_000)
+    expect(r.ok && r.state.weatherHold).toBe(false)
+  })
+
+  it('postpones from now when the launch time has already passed', () => {
+    const late = LAUNCH_AT + 5 * 60_000
+    const r = applyAction(EMPTY_GAME, { type: 'postpone', minutes: 60 }, { now: late, random: () => 0, role: 'admin' })
+    expect(r.ok && r.state.launchAt).toBe(late + 60 * 60_000)
+  })
+
+  it('needs the admin code to postpone', () => {
+    expect(applyAction(EMPTY_GAME, { type: 'postpone', minutes: 30 }, env('team'))).toMatchObject({ ok: false, need: 'admin' })
+  })
+
+  it('reads old saved data without the new fields', () => {
+    const old = { version: 50, topics: {}, goNoGo: false, launch: null } as GameData
+    expect(scheduledLaunchAt(old)).toBe(LAUNCH_AT)
   })
 })

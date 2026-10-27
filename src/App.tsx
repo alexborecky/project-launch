@@ -1,5 +1,6 @@
 import { Board } from './components/Board'
 import { FilmOverlay } from './components/FilmOverlay'
+import { WeatherHold } from './weather/WeatherHold'
 import { IS_DEMO } from './demo/demo'
 import { DemoToolbar } from './demo/DemoToolbar'
 import { useAudioCues } from './audio/useAudioCues'
@@ -15,6 +16,7 @@ export default function App() {
     <>
       <Board flight={flight} onLaunch={launch} onReturn={returnToPad} />
       <FilmOverlay flight={flight} launchStart={game.launch?.at ?? null} />
+      <WeatherHold game={game} />
       {IS_DEMO && <DemoToolbar flight={flight} onFlight={(f) => setOverride(f.phase === 'idle' ? null : f)} />}
     </>
   )

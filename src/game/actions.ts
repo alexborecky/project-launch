@@ -2,6 +2,7 @@
 // and the Netlify function uses the very same code for the shared save. Pure: no storage, no clock.
 import { TOPICS, type PartId } from '../config'
 import { nextTopicState, rollOutcome, type Outcome, type TopicAction, type TopicStates } from './rules'
+import { LAUNCH_AT } from './time'
 
 export interface LaunchRecord {
   /** Increases with every launch, so screens can tell a new launch from one they've seen. */
@@ -19,9 +20,16 @@ export interface GameData {
   goNoGo: boolean
   /** The current launch, until someone returns the rocket to the pad. */
   launch: LaunchRecord | null
+  /** When the launch unlocks (server ms), after any postponements. Missing = the original time (config). */
+  launchAt?: number | null
+  /** The weather popup, turned on by hand in god mode. */
+  weatherHold?: boolean
 }
 
-export const EMPTY_GAME: GameData = { version: 0, topics: {}, goNoGo: false, launch: null }
+/** When the launch unlocks: the original time, or later if it was postponed. */
+export const scheduledLaunchAt = (state: GameData) => state.launchAt ?? LAUNCH_AT
+
+export const EMPTY_GAME: GameData = { version: 0, topics: {}, goNoGo: false, launch: null, launchAt: null, weatherHold: false }
 
 export type Action =
   | { type: 'topic'; part: PartId; step: TopicAction }
@@ -31,6 +39,10 @@ export type Action =
   | { type: 'reset' }
   /** Demo toolbar only: set every topic at once. */
   | { type: 'setTopics'; topics: TopicStates }
+  /** Bad weather: move the launch time later, for everyone. */
+  | { type: 'postpone'; minutes: number }
+  /** Show or hide the weather popup by hand (god mode). */
+  | { type: 'weatherHold'; on: boolean }
 
 export type Role = 'viewer' | 'team' | 'admin'
 
@@ -42,6 +54,8 @@ export const NEEDS: Record<Action['type'], Role> = {
   return: 'admin',
   reset: 'admin',
   setTopics: 'admin',
+  postpone: 'admin',
+  weatherHold: 'admin',
 }
 
 const RANK: Record<Role, number> = { viewer: 0, team: 1, admin: 2 }
@@ -85,5 +99,13 @@ export function applyAction(
       return next({ topics: {}, goNoGo: false, launch: null })
     case 'setTopics':
       return next({ topics: action.topics, launch: null })
+    case 'postpone': {
+      if (![30, 60].includes(action.minutes)) return { ok: false, status: 400, error: 'Postpone by 30 or 60 minutes.' }
+      // From the scheduled time, or from now if that has already passed.
+      const from = Math.max(scheduledLaunchAt(state), env.now)
+      return next({ launchAt: from + action.minutes * 60_000, weatherHold: false })
+    }
+    case 'weatherHold':
+      return next({ weatherHold: action.on })
   }
 }

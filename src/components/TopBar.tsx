@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { MISSION_ID } from '../config'
-import { LAUNCH_AT, formatCountdown } from '../game/time'
+import { formatCountdown } from '../game/time'
 import liveDot from '../assets/figma/live-dot.svg'
 import s from './TopBar.module.css'
 
@@ -8,13 +8,17 @@ interface TopBarProps {
   now: Date
   status: string
   godMode: boolean
+  /** When the launch unlocks, after any postponement. */
+  launchAt: number
   /** God mode Reset button (asks in a dialog). */
   onReset: () => void
+  /** God mode: show the weather popup on every screen. */
+  onWeatherHold: () => void
   /** Complete reset, already confirmed in the Mission ID popover. */
   onFullReset: () => void
 }
 
-export function TopBar({ now, status, godMode, onReset, onFullReset }: TopBarProps) {
+export function TopBar({ now, status, godMode, launchAt, onReset, onWeatherHold, onFullReset }: TopBarProps) {
   return (
     <header className={s.bar}>
       <div className={s.brand}>
@@ -28,6 +32,9 @@ export function TopBar({ now, status, godMode, onReset, onFullReset }: TopBarPro
       {godMode && (
         <div className={s.god} role="group" aria-label="God mode controls">
           <span className={s.godLabel}>◆ GOD MODE</span>
+          <button type="button" className={s.reset} onClick={onWeatherHold}>
+            WEATHER
+          </button>
           <button type="button" className={s.reset} onClick={onReset}>
             RESET
           </button>
@@ -38,7 +45,7 @@ export function TopBar({ now, status, godMode, onReset, onFullReset }: TopBarPro
         <MissionChip onReset={onFullReset} />
         <div className={s.chip} role="timer" aria-label="Time to launch">
           <span className={s.chipLabel}>T-MINUS</span>
-          <span className={`${s.chipValue} ${s.accent} ${s.countdown}`}>{formatCountdown(LAUNCH_AT - now.getTime())}</span>
+          <span className={`${s.chipValue} ${s.accent} ${s.countdown}`}>{formatCountdown(launchAt - now.getTime())}</span>
         </div>
         <div className={s.chip} role="status">
           <span className={s.chipLabel}>STATUS</span>

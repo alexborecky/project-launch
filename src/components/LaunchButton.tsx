@@ -20,7 +20,7 @@ export function LaunchButton({ mode, onClick }: LaunchButtonProps) {
       <span>{label}</span>
       {mode === 'locked' && (
         <span id="launch-lock-note" className="sr-only">
-          Locked until Tuesday 27 October, 17:00 Prague time
+          Locked until launch time (see T-minus)
         </span>
       )}
     </button>

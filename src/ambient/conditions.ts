@@ -14,10 +14,10 @@ export interface Conditions {
 
 const wave = (t: number, periodS: number, phase = 0) => Math.sin((t / 1000 / periodS) * Math.PI * 2 + phase)
 
-export function getConditions(now: Date, drift = true): Conditions {
+export function getConditions(now: Date, drift = true, launchAt = LAUNCH_AT): Conditions {
   const t = drift ? now.getTime() : 0
   // The weather window closes an hour after launch.
-  const left = Math.max(0, LAUNCH_AT + 3600_000 - now.getTime())
+  const left = Math.max(0, launchAt + 3600_000 - now.getTime())
   const h = Math.floor(left / 3600_000)
   const m = Math.floor((left % 3600_000) / 60_000)
   return {

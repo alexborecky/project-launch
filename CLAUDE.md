@@ -42,6 +42,12 @@ Vite + React + TypeScript, plain CSS modules and CSS variables, no UI or CSS fra
   - The radar rings and sweep were removed. A pulsing, blinking dot shows the rocket: on PAD 39A before launch, then along the route. Max-Q is a normal milestone.
   - The map flies its own realistic profile, steady acceleration (`MAP_PROFILE`): stage 1 ≈ 0:37, Max-Q ≈ 0:58, stage 2 ≈ 1:37, orbit at about 3–4 min. A failure stops at its break-up altitude (≈ 30–60 s).
   - The profile starts at lift-off in the clip. The map keeps flying after the result panel shows; the camera phases still follow the clip (`ascentMs`).
+- Weather hold (27 Oct 2026): a "WEATHER HOLD" popup (`src/weather/WeatherHold.tsx`) says the weather and wind are bad, with Postpone 30 min / 60 min and a quiet "Keep schedule".
+  - It appears automatically in the last minute before the scheduled launch time, or by hand: god-mode WEATHER button, or the demo's Weather button. It's shared, so every screen sees it.
+  - Postponing (admin code) moves `GameData.launchAt` from the scheduled time, or from now if that has passed. T-minus, the launch lock and the weather window follow `scheduledLaunchAt(game)`.
+  - While the hold is on, the status chip shows WEATHER HOLD and Launch Conditions shows NO GO with 46 km/h wind.
+  - "Keep schedule" hides the automatic popup on that screen only, or clears the manual hold.
+  - New fields are optional, so older saved data still loads.
 - Saved progress lives in Netlify Blobs, separately from deploys, so pushing new code never clears it. Keep `GameData` compatible: add fields with defaults; never rename or remove them.
 - Rocket art (since 24 Oct 2026):
   - It's 12 PNG construction layers per lighting set, in `public/rocket-48-construction-layers/` (256 × 1536 canvas). It replaced the old SVG parts.

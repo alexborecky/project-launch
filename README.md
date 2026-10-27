@@ -65,6 +65,10 @@ Open the address in two windows to see them sync. One limitation of Netlify's lo
 
 Double-click the **MISSION ID** chip in the top bar. A small popover asks you to confirm. "Reset everything" sets every topic back to Waiting, clears the rocket and returns any launch to the pad. It works in every mode, not just god mode. On the Netlify site it asks for the admin code.
 
+## Weather hold
+
+One minute before the launch time, a **WEATHER HOLD** popup says the weather and wind are bad, and offers **Postpone 30 min** or **Postpone 60 min**. These need the admin code and move the launch time for every screen. In god mode, the **WEATHER** button in the top bar shows the popup any time, and so does the demo's **Weather** button.
+
 ## God mode
 
 Add `#godmode` to the URL, for example `http://localhost:5173/#godmode`.
