@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { EMPTY_GAME } from '../game/actions'
 import { LAUNCH_AT } from '../game/time'
-import { weatherHoldActive } from './WeatherHold'
+import { weatherHoldActive } from './hold'
 
 describe('weatherHoldActive', () => {
   it('comes on in the last minute before the launch time, and not before', () => {

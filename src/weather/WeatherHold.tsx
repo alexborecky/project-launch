@@ -1,23 +1,10 @@
 import { useState } from 'react'
 import { scheduledLaunchAt, type GameData } from '../game/actions'
+import { weatherHoldActive } from './hold'
 import { useNow } from '../hooks/hooks'
 import { store } from '../store/store'
 import { useAct } from '../store/useAct'
 import s from './WeatherHold.module.css'
-
-/** The popup appears this long before the scheduled launch time. */
-export const WEATHER_WARNING_MS = 60_000
-
-/**
- * Is the weather hold on? Either turned on by hand (god mode, shared with every screen), or
- * automatically in the last minute before the scheduled launch time. Never during a launch.
- */
-// oxlint-disable-next-line react/only-export-components
-export function weatherHoldActive(game: GameData, serverNow: number) {
-  if (game.launch) return false
-  const at = scheduledLaunchAt(game)
-  return !!game.weatherHold || (serverNow >= at - WEATHER_WARNING_MS && serverNow < at)
-}
 
 /** "Weather conditions and wind are bad" with Postpone 30 / 60 minutes. */
 export function WeatherHold({ game }: { game: GameData }) {
